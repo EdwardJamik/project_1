@@ -1,0 +1,64 @@
+.tag {
+  position: relative;
+  display: flex;
+  align-items: center;
+
+  padding: 0 8px;
+  min-width: 85px;
+  width: min-content;
+
+  height: 24px;
+  box-sizing: border-box;
+
+
+  &.vip {
+    background-color: #c6507e;
+    max-width: 85px;
+    clip-path: polygon(100% 0%, 0% 0%, 0% 100%, 100% 100%, 88% 50%);
+    & .icon{
+      display: flex;
+      align-items: center;
+      padding: 0 6px 0 0;
+      height: 100%;
+    }
+  }
+
+  &.hot {
+    background-color: #ff8000;
+    max-width: 85px;
+    clip-path: polygon(100% 0%, 0% 0%, 0% 100%, 100% 100%, 88% 50%);
+    & .icon{
+      display: flex;
+      align-items: center;
+      padding: 0 6px 0 0;
+      height: 100%;
+    }
+  }
+
+  &.other{
+    display: block;
+    background: #929190;
+    width: 85px;
+    box-sizing: border-box;
+    padding: 0 0 0 16px;
+  }
+
+
+  & .text_tag {
+    display: flex;
+    align-items: center;
+    height: 100%;
+    text-transform: uppercase;
+    color: #fff;
+    font-size: 14px;
+    font-weight: 500;
+    
+    &.other{
+      color: #202222;
+      font-weight: 400;
+    }
+  }
+
+
+
+}

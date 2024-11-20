@@ -1,0 +1,138 @@
+.blog_list{
+
+  min-height: 140px;
+  overflow: hidden;
+
+  & h4{
+    color: #202222;
+    font-size: 18px;
+    text-align: center;
+    margin-top: 50px;
+  }
+  
+  & .list-item{
+    position: relative;
+    margin-bottom: 10px;
+    padding: 10.2px 12.6px;
+    background: #fff;
+    gap: 14.6px;
+    cursor: pointer;
+    transition: all .4s;
+    border-radius: 6px;
+
+    @media screen and (max-width: 520px) {
+      gap: 6px
+    }
+
+    &:hover{
+      background: #C6507E33;
+      & .content{
+        background: #C6507E33;
+
+        & .title{
+          font-weight: 500;
+        }
+
+      }
+
+      & .image-placeholder{
+        & img{
+          transform: scale(1.1);
+        }
+      }
+    }
+
+    & .tags {
+      & .tag {
+        position: absolute;
+        top: 0.3rem;
+        left: 0;
+        z-index: 9;
+      }
+    }
+
+    & .image-placeholder{
+      max-width: 188px;
+      height: 140px;
+      overflow: hidden;
+      width: 188px;
+      @media screen and (max-width: 520px) {
+        max-width: 120px;
+        max-height: 112px;
+      }
+      & img{
+        object-fit: cover;
+        object-position: center;
+        max-width: 188px;
+        height: 140px;
+        transition: all .4s;
+
+        @media screen and (max-width: 520px) {
+          max-width: 120px;
+          max-height: 112px;
+        }
+      }
+    }
+
+    & .details{
+      padding-bottom: 32px;
+
+      & .title{
+        font-size: 17px;
+        color: #fa7db7;
+        font-weight: 500;
+
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+        text-overflow: ellipsis;
+        margin-bottom: 20px;
+
+        @media screen and (max-width: 520px) {
+          font-size: 16px;
+          margin-bottom: 6px;
+        }
+      }
+
+      & .description{
+        overflow: hidden;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        text-overflow: ellipsis;
+        line-height: 20px;
+
+        font-size: 14px;
+
+        @media screen and (max-width: 520px) {
+          font-size: 13px;
+          line-height: 16px;
+        }
+      }
+
+      & .side{
+        position: absolute;
+        bottom: 10.2px;
+
+        & .time{
+          font-size: 0.833rem;
+          color: #7c7c7e;
+
+          overflow: hidden;
+          display: -webkit-box;
+          -webkit-line-clamp: 1;
+          -webkit-box-orient: vertical;
+          text-overflow: ellipsis;
+        }
+
+        & .location{
+          font-size: 0.833rem;
+          color: #7c7c7e;
+        }
+      }
+
+    }
+
+  }
+}

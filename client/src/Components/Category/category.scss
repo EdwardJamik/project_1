@@ -1,0 +1,91 @@
+.sidebar {
+  width: 25%;
+  background-color: white;
+  padding: 15px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  height: fit-content;
+  border-top: 2px solid #ddd;
+  border-bottom: 2px solid #ddd;
+  border-radius: 6px;
+
+  & h2{
+    margin-top: 0;
+    font-weight: 400;
+  }
+
+  & .menu-list {
+    list-style: none;
+    padding: 0;
+
+    & .menu-item {
+      position: relative;
+      cursor: pointer;
+      transition: all 0.4s;
+
+      &.active{
+        background-color: rgba(198, 80, 126, .4);
+        border-radius: 2px;
+        color: #fff;
+        & a{
+          color: #fff;
+          & div{
+            color: #fff;
+          }
+        }
+      }
+
+      & a{
+        color: #000;
+        text-decoration: none;
+        & div{
+          padding: 12px 0 12px 40px;
+          background-image: url('../../Assets/heart.svg');
+          background-position: left;
+          background-size: 28px;
+          background-repeat: no-repeat;
+          transition: all 0.4s;
+
+          color: #000;
+          text-decoration: none;
+          & span{
+
+          }
+        }
+      }
+
+
+      &:before{
+        content: ' ';
+        position: absolute;
+        top: 0;
+        height: 1.2px;
+        background: #ddd;
+        left: 0;
+        width: 100%;
+      }
+
+      &:last-child{
+        &:after{
+          content: ' ';
+          position: absolute;
+          bottom: 0;
+          height: 1.2px;
+          background: #ddd;
+          left: 0;
+          width: 100%;
+        }
+      }
+
+      &:hover{
+        & div {
+          margin-left: 10px;
+        }
+      }
+    }
+  }
+
+
+  @media screen and (max-width: 768px) {
+
+  }
+}
