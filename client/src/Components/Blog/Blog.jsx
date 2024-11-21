@@ -5,11 +5,14 @@ import data from '../../posts.json';
 import { useNavigate, useParams } from "react-router-dom";
 import Pagination from "../Pagination/Pagination.jsx";
 import { useTranslation } from "react-i18next";
+import { useModal } from '../Modal/ModalContext.jsx';
 
 const Blog = () => {
     const { i18n } = useTranslation();
     const currentLanguage = i18n.language;
+
     const { t } = useTranslation();
+
     const { page, category } = useParams();
     const navigate = useNavigate();
 
@@ -18,26 +21,28 @@ const Blog = () => {
     const [totalPages, setTotalPages] = useState(1);
     const recordsPerPage = 9;
 
+    const { openModal } = useModal();
+    const handleOpen = () => {
+        openModal();
+    };
+
     const getLocalizedValue = (localizedObject) => {
         return localizedObject[currentLanguage] || localizedObject['de'] || '';
     };
 
     useEffect(() => {
         const fetchRecords = () => {
-            // Фільтруємо за категорією, якщо вона вказана
+
             const filteredData = category
                 ? data.filter((item) => item.category === category)
                 : data;
 
-            // Пагінація
             const indexOfLastRecord = currentPage * recordsPerPage;
             const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
             const newRecords = filteredData.slice(indexOfFirstRecord, indexOfLastRecord);
 
-            // Оновлюємо відображувані записи
             setCurrentRecords(newRecords);
 
-            // Оновлюємо кількість сторінок
             setTotalPages(Math.ceil(filteredData.length / recordsPerPage));
         };
 
@@ -61,14 +66,13 @@ const Blog = () => {
     };
 
     return (
+        <>
         <div>
-
-
             {currentRecords?.length >= 1 ?
                 <>
-                    <div className="blog_list">
-                        {currentRecords.map((record) => (
-                            <div key={record.id} className="list-item">
+                    <div className="blog_list" key={'blog_full'}>
+                        {currentRecords.map((record,index) => (
+                            <div key={index} className="list-item" onClick={handleOpen}>
                                 <div className="image-placeholder">
                                     <img src={record.photo} alt="Blog image"/>
                                 </div>
@@ -96,11 +100,12 @@ const Blog = () => {
                     />
                 </>
                 :
-                <div className="blog_list">
+                <div className="blog_list" key={'blog_empty'}>
                     <h4>{t('record_not_found')}</h4></div>
             }
-
         </div>
+
+        </>
     );
 };
 

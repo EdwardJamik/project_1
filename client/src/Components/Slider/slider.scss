@@ -56,6 +56,7 @@
     transition: all .4s;
 
     &:hover{
+      transform: scale(1.02);
       & .content{
         background: #C6507E33;
 
@@ -171,5 +172,45 @@
 
     }
 
+  }
+}
+
+.mySwiper {
+  position: relative;
+
+  .swiper-button-next,
+  .swiper-button-prev {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background-color: rgba(198, 80, 126, 0.8);
+    color: white;
+    padding: 10px;
+    border-radius: 50%;
+    border: none;
+    cursor: pointer;
+    opacity: 0;
+    transition: opacity 0.3s;
+
+    width: 40px;
+    height: 40px;
+  }
+
+  .swiper-button-next {
+    right: 10px;
+    z-index: 99;
+
+  }
+
+  .swiper-button-prev {
+    left: 10px;
+    z-index: 99;
+  }
+
+  &:hover {
+    .swiper-button-next,
+    .swiper-button-prev {
+      opacity: 1;
+    }
   }
 }

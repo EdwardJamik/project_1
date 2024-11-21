@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useState} from 'react';
 
 import './category.scss'
 import {useTranslation} from "react-i18next";
@@ -13,16 +13,22 @@ const Category = () => {
     const { t } = useTranslation();
     const currentLanguage = i18n.language;
 
+    const [isOpen, setOpen] = useState(false)
+
     const { category } = useParams();
+
+    const onChange = () =>{
+        setOpen(!isOpen)
+    }
 
     const getLocalizedValue = (localizedObject) => {
         return localizedObject[currentLanguage] || localizedObject['de'] || '';
     };
     return (
-        <>
+        <aside className="sidebar" onClick={onChange}>
             <nav>
-                <h2>{t('title_category')}</h2>
-                <ul className="menu-list">
+                <h2 className={isOpen ? "open" : ""}>{t('title_category')}</h2>
+                <ul className={isOpen ? "open menu-list" : "menu-list"}>
                     {data.map((record, index) => (
                         <li key={index} className={category === record?.link ? "active menu-item" : "menu-item"}>
                             <Link to={`/category/${record?.link}`}>
@@ -34,7 +40,7 @@ const Category = () => {
                     ))}
                 </ul>
             </nav>
-        </>
+        </aside>
     );
 };
 

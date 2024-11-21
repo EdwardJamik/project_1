@@ -4,6 +4,7 @@ import default_img from "../../Assets/tip_default_image.png";
 import data from '../../tipps.json';
 import {useParams} from "react-router-dom";
 import {useTranslation} from "react-i18next";
+import {useModal} from "../Modal/ModalContext.jsx";
 
 const PostList = () => {
     const { i18n } = useTranslation();
@@ -13,6 +14,10 @@ const PostList = () => {
     const [uniquePosts, setUniquePosts] = useState([]);
     const { page } = useParams();
 
+    const { openModal } = useModal();
+    const handleOpen = () => {
+        openModal();
+    };
     const getLocalizedValue = (localizedObject) => {
 
         return localizedObject[currentLanguage] || localizedObject['de'] || '';
@@ -37,7 +42,7 @@ const PostList = () => {
             <h2>{t('tips')}</h2>
             <div className="post_content">
                 {uniquePosts.map((post, index) => (
-                    <div key={index} className="card">
+                    <div key={index} className="card" onClick={handleOpen}>
                         <div className="image-placeholder">
                             <img src={post?.image || default_img} alt={getLocalizedValue(post?.title)}/>
                         </div>
