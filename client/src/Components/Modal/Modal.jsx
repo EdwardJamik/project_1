@@ -22,13 +22,19 @@ const Modal = () => {
     const [isMailError, setMailError] = useState(false)
     const [isConfirm, setConfirm] = useState(0)
 
+    const [isStepInfo, setStepInfo] = useState('')
+
     useEffect(()=>{
             setStep(1)
             setLand('')
             setLoading(false)
             setMailError(false)
             setConfirm(0)
-    },[isActive])
+
+        const step_info = t('modal_step')
+        const updatedStep = step_info.replace("{isStep}", 1);
+        setStepInfo(updatedStep)
+   },[isActive])
 
     const [userData, setUserData] = useState({
         gender: 1,
@@ -67,8 +73,13 @@ const Modal = () => {
     const nextStep = async () => {
 
         if (isStep === 1) {
+            const step_info = t('modal_step')
+            const updatedStep = step_info.replace("{isStep}", isStep+1);
+            setStepInfo(updatedStep)
+
             setStep(isStep + 1)
             setError(null)
+
         } else if (isStep === 2) {
             if (!userData?.tag || !userData?.monat || !userData?.jahr) {
                 setError(t('modal_warning_date'));
@@ -88,6 +99,10 @@ const Modal = () => {
                 return;
             }
 
+            const step_info = t('modal_step')
+            const updatedStep = step_info.replace("{isStep}", isStep+1);
+            setStepInfo(updatedStep)
+
             setError(null)
             setStep(isStep + 1)
         } else if (isStep === 3) {
@@ -97,6 +112,10 @@ const Modal = () => {
             }
 
             if (isLoading && isConfirm) {
+                const step_info = t('modal_step')
+                const updatedStep = step_info.replace("{isStep}", isStep+1);
+                setStepInfo(updatedStep)
+
                 setError(null)
                 setStep(isStep + 1)
             } else {
@@ -199,7 +218,7 @@ const Modal = () => {
                             <p className='last'>{t('modal_p_2_step_1')}</p>
 
                             <button onClick={nextStep}>{t('modal_button_step_1')}</button>
-                            <span className="step">Schritt {isStep} von 4</span>
+                            <span className="step">{isStepInfo}</span>
                         </div>
                     </>
                 }
@@ -220,13 +239,13 @@ const Modal = () => {
                                 <input type="number" value={userData.jahr} onChange={(e)=>{setUserData({...userData, jahr: e.target.value})}} placeholder={t('input_placeholder_year')}/>
                             </div>
 
-                            <button onClick={nextStep}>{t('modal_p_1_step_2')}</button>
+                            <button onClick={nextStep}>{t('modal_button_step_2')}</button>
 
                             {isError !== null &&
                                 <div className="warning">{isError}</div>
                             }
 
-                            <span className="step">Schritt {isStep} von 4</span>
+                            <span className="step">{isStepInfo}</span>
                         </div>
                     </>
                 }
@@ -246,7 +265,7 @@ const Modal = () => {
                                         <>
                                             <p>{Replacer(t('modal_p_1_step_3'))}</p>
                                             <button onClick={nextStep}>{t('modal_button_step_3')}</button>
-                                            <span className="step">Schritt {isStep} von 4</span>
+                                            <span className="step">{isStepInfo}</span>
                                         </>
                                         :
                                         <>
@@ -257,7 +276,7 @@ const Modal = () => {
                                             </div>
 
                                             <p className='loadingSubtitle'>{t('modal_p_2_step_3')}</p>
-                                            <span className="step">Schritt {isStep} von 4</span>
+                                            <span className="step">{isStepInfo}</span>
                                         </>
                                     }
 
@@ -290,7 +309,7 @@ const Modal = () => {
                                         <div className="warning">{isError}</div>
                                     }
 
-                                    <span className="step">Schritt {isStep} von 4</span>
+                                    <span className="step">{isStepInfo}</span>
                                 </>
                             }
                         </div>
@@ -318,7 +337,7 @@ const Modal = () => {
                                 <div className="warning">{isError}</div>
                             }
 
-                            <span className="step">Schritt {isStep} von 4</span>
+                            <span className="step">{isStepInfo}</span>
                         </div>
                     </>
                 }

@@ -45,6 +45,7 @@
   "modal_p_1_step_4": "Deinen persönlicher Zugangs-Code kommt per Mail!",
   "modal_button_step_4": "Jetzt kostenlos starten!",
 
+  "modal_step": "Schritt {isStep} von 4",
 
   "input_placeholder_nick": "Nutzername",
   "input_placeholder_password":"Passwort",
