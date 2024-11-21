@@ -3,6 +3,7 @@ import { Swiper, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
 import 'swiper/css/pagination';
+import 'swiper/css/autoplay';
 
 import './slider.scss';
 
@@ -11,7 +12,7 @@ import Tag from "../Tag/Tag.jsx";
 import data from '../../posts.json';
 import {useTranslation} from "react-i18next";
 import {useModal} from "../Modal/ModalContext.jsx";
-import { Navigation } from 'swiper/modules';
+import { Navigation, Autoplay } from 'swiper/modules';
 
 const rightIcon = [
     <svg viewBox="0 0 24 24" width='20px' height='20px' fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -58,6 +59,16 @@ export default function TopSlider() {
             <Swiper
                 spaceBetween={10}
                 slidesPerView={5}
+                loop={true}
+                loopAdditionalSlides={2}
+                autoplay={{
+                    delay: 3000, 
+                    disableOnInteraction: false,
+                    pauseOnMouseEnter: true,
+                    waitForTransition: false,
+                    stopOnLastSlide: false
+                }}
+                speed={1000}
                 breakpoints={{
                     300: {
                         slidesPerView: 2,
@@ -88,7 +99,7 @@ export default function TopSlider() {
                     nextEl: '.swiper-button-next',
                     prevEl: '.swiper-button-prev',
                 }}
-                modules={[Navigation]}
+                modules={[Navigation, Autoplay]}
                 className="mySwiper"
             >
                 <div className="grid">

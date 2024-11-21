@@ -9,10 +9,10 @@ i18n
     .use(initReactI18next)
     .init({
         supportedLngs: ['de', 'en'],
-        fallbackLng: 'en',
+        fallbackLng: 'de',
         debug: false,
         detection: {
-            order: ['queryString', 'cookie'],
+            order: ['queryString', 'cookie', 'navigator'],
             cache: ['cookie']
         },
         backend: {

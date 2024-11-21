@@ -124,6 +124,30 @@
           -webkit-line-clamp: 1;
           -webkit-box-orient: vertical;
           text-overflow: ellipsis;
+
+          & .type_find{
+            position: relative;
+            padding-left: 12px;
+            height: 16px;
+            &:before{
+              display: flex;
+              align-items: center;
+              content: " ";
+              position: absolute;
+              color: #fa7db7;
+              width: 4px;
+              height: 4px;
+              background: #fa7db7;
+              left: 2px;
+              top: 50%;
+              border-radius: 100%;
+              transform: translate(0, -50%);
+
+              @media screen and (max-width: 390px) {
+
+              top: 28%}
+              }
+          }
         }
 
         & .location{

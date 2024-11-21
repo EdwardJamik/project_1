@@ -78,27 +78,31 @@ const Blog = () => {
             {currentRecords?.length >= 1 ?
                 <>
                     <div className="blog_list" ref={blogListRef} key={'blog_full'}>
-                        {currentRecords.map((record,index) => (
-                            <div key={index} className="list-item" onClick={handleOpen}>
-                                <div className="image-placeholder">
-                                    <img src={record.photo} alt="Blog image"/>
-                                </div>
-                                <div className="tags">
-                                    <Tag type={record.badge}/>
-                                </div>
-                                <div className="details">
-                                    <p className="title">{getLocalizedValue(record.title)}</p>
-                                    <p className="description">{getLocalizedValue(record.description)}</p>
-                                    <div className="side">
-                                        <p className="time">
-                                            {getLocalizedValue(record.time)} <span
-                                            className="type_find">{getLocalizedValue(record.looking)}</span>
-                                        </p>
-                                        <p className="location">{getLocalizedValue(record.location)}</p>
+                        {currentRecords.map((record, index) => {
+                            const randomMinutes = Math.floor(Math.random() * (29 - 3 + 1)) + 3;
+
+                            return (
+                                <div key={index} className="list-item" onClick={handleOpen}>
+                                    <div className="image-placeholder">
+                                        <img src={record.photo} alt="Blog image"/>
+                                    </div>
+                                    <div className="tags">
+                                        <Tag type={record.badge}/>
+                                    </div>
+                                    <div className="details">
+                                        <p className="title">{getLocalizedValue(record?.title)}</p>
+                                        <p className="description">{getLocalizedValue(record?.description)}</p>
+                                        <div className="side">
+                                            <p className="time">
+                                                Today, {randomMinutes} min ago
+                                                <span className="type_find">{getLocalizedValue(record?.looking)}</span>
+                                            </p>
+                                            <p className="location">{getLocalizedValue(record?.location)}</p>
+                                        </div>
                                     </div>
                                 </div>
-                            </div>
-                        ))}
+                            );
+                        })}
                     </div>
                     <Pagination
                         totalPages={totalPages}
