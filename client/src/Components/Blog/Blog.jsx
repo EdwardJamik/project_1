@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useRef, useState} from 'react';
 import './blog.scss';
 import Tag from "../Tag/Tag.jsx";
 import data from '../../posts.json';
@@ -12,6 +12,8 @@ const Blog = () => {
     const currentLanguage = i18n.language;
 
     const { t } = useTranslation();
+
+    const blogListRef = useRef(null);
 
     const { page, category } = useParams();
     const navigate = useNavigate();
@@ -50,7 +52,12 @@ const Blog = () => {
     }, [currentPage, category, recordsPerPage]);
 
     useEffect(() => {
-        window.scrollTo(0, 0);
+        if (blogListRef.current) {
+            blogListRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
         const pagination = document.getElementById('pagination');
         if (pagination) {
             pagination.blur();
@@ -70,7 +77,7 @@ const Blog = () => {
         <div>
             {currentRecords?.length >= 1 ?
                 <>
-                    <div className="blog_list" key={'blog_full'}>
+                    <div className="blog_list" ref={blogListRef} key={'blog_full'}>
                         {currentRecords.map((record,index) => (
                             <div key={index} className="list-item" onClick={handleOpen}>
                                 <div className="image-placeholder">
