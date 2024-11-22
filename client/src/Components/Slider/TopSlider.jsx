@@ -13,6 +13,7 @@ import data from '../../slide_list.json';
 import {useTranslation} from "react-i18next";
 import {useModal} from "../Modal/ModalContext.jsx";
 import { Navigation, Autoplay } from 'swiper/modules';
+import axios from "axios";
 
 const rightIcon = [
     <svg viewBox="0 0 24 24" width='20px' height='20px' fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -39,12 +40,34 @@ export default function TopSlider() {
         openModal();
     };
 
+    const [locationData, setLocationData] = useState(null);
+
+    const fetchLocation = async () => {
+        try {
+            console.log(import.meta.env.VITE_API_KEY)
+                    const getUserIp = await axios.get('https://api.ipify.org?format=json');
+                    const response = await axios.get(`https://pro.ip-api.com/json/${getUserIp?.data?.ip}?key=${import.meta.env.VITE_API_KEY}`);
+                    const { city, zip } = response.data;
+
+                    const result = {
+                        city,
+                        zip,
+                    };
+
+                    setLocationData(result);
+        } catch (err) {
+            console.log(err)
+        }
+    };
+
     const getRandomItems = (data, count) => {
         const shuffled = [...data].sort(() => 0.5 - Math.random());
         return shuffled.slice(0, count);
     };
 
-    useEffect(() => {
+
+    useEffect(async () => {
+        await fetchLocation();
         const selectedItems = getRandomItems(data, 10);
         setRandomItems(selectedItems);
     }, []);
@@ -103,28 +126,30 @@ export default function TopSlider() {
                 className="mySwiper"
             >
                 <div className="grid">
-                    {randomItems.map((record, index) => (
-                        <SwiperSlide key={index}>
-                            <div className="card" onClick={handleOpen}>
-                                <div className="image-placeholder">
-                                    <img src={record.photo} alt=""/>
-                                </div>
-                                {record.badge ?
-                                    <div className="tags">
-                                        <Tag type={record.badge}/>
+                    {randomItems.map((record, index) => {
+                        const distance = Math.floor(Math.random() * (45 - 4 + 1)) + 4;
+                        return (
+                            <SwiperSlide key={index}>
+                                <div className="card" onClick={handleOpen}>
+                                    <div className="image-placeholder">
+                                        <img src={record.photo} alt="" />
                                     </div>
-                                    :
-                                    <></>
-                                }
-
-                                <div className="content">
-                                <p className="title">{getLocalizedValue(record.title)}</p>
-                                    <p className="location">{record?.location ? getLocalizedValue(record?.location) : ''}</p>
-                                    <p className="description">{getLocalizedValue(record.description)}</p>
+                                    {record.badge ? (
+                                        <div className="tags">
+                                            <Tag type={record.badge} />
+                                        </div>
+                                    ) : null}
+                                    <div className="content">
+                                        <p className="title">{getLocalizedValue(record.title)}</p>
+                                        <p className="location">
+                                            {locationData?.zip} {locationData?.city} {distance} km
+                                        </p>
+                                        <p className="description">{getLocalizedValue(record.description)}</p>
+                                    </div>
                                 </div>
-                            </div>
-                        </SwiperSlide>
-                    ))}
+                            </SwiperSlide>
+                        );
+                    })}
                 </div>
 
                 <button className="swiper-button-next">{rightIcon}</button>
