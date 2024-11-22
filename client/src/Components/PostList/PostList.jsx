@@ -44,7 +44,7 @@ const PostList = () => {
                 {uniquePosts.map((post, index) => (
                     <div key={index} className="card" onClick={handleOpen}>
                         <div className="image-placeholder">
-                            <img src={post?.image || default_img} alt={getLocalizedValue(post?.title)}/>
+                            <img src={post?.photo || default_img} alt={getLocalizedValue(post?.title)}/>
                         </div>
                         <div className="content">
                             <p className="title">{getLocalizedValue(post?.title)}</p>
