@@ -44,7 +44,6 @@ export default function TopSlider() {
 
     const fetchLocation = async () => {
         try {
-            console.log(import.meta.env.VITE_API_KEY)
                     const getUserIp = await axios.get('https://api.ipify.org?format=json');
                     const response = await axios.get(`https://pro.ip-api.com/json/${getUserIp?.data?.ip}?key=${import.meta.env.VITE_API_KEY}`);
                     const { city, zip } = response.data;
@@ -66,8 +65,8 @@ export default function TopSlider() {
     };
 
 
-    useEffect(async () => {
-        await fetchLocation();
+    useEffect( () => {
+        fetchLocation();
         const selectedItems = getRandomItems(data, 10);
         setRandomItems(selectedItems);
     }, []);
@@ -142,7 +141,7 @@ export default function TopSlider() {
                                     <div className="content">
                                         <p className="title">{getLocalizedValue(record.title)}</p>
                                         <p className="location">
-                                            {locationData?.zip} {locationData?.city} {distance} km
+                                            {locationData?.zip} {locationData?.city} {distance ? `${distance} km` : ``}
                                         </p>
                                         <p className="description">{getLocalizedValue(record.description)}</p>
                                     </div>
