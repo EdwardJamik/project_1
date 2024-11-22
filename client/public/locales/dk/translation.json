@@ -1,0 +1,57 @@
+{
+  "title": "Title",
+  "tips": "Sex-Tips",
+
+  "title_category": "Categories",
+
+  "record_not_found": "No records",
+
+  "back_page": "< back",
+  "next_page": "next >",
+
+  "text_box": "Postfach",
+  "text_more": "more",
+  "create_add": "Gratis Anzeige erstellen",
+
+  "search": "Search",
+
+  "modal_warning_date": "Irgendetwas stimmt mit deinem Geburtsdatum nicht...",
+  "modal_warning_age": "Du musst mindestens 18 sein, um sich anzumelden zu können!",
+  "modal_warning_mail": "Bitte verwende eine korrekte E-Mail Adresse!",
+
+  "modal_title_step_1": "Glückwunsch!",
+  "modal_p_1_step_1": "Du hast einen VIP Zugang gewonnen!",
+  "modal_p_2_step_1": "Wähle deine Vorlieben aus und\n registriere dich KOSTENLOS!",
+
+  "modal_button_step_1": "Los geht's!",
+
+
+  "modal_title_step_2": "Dein Alter",
+  "modal_p_1_step_2": "Wie alt bist du?",
+  "modal_button_step_2": "Weiter",
+
+
+
+  "modal_title_step_3": "Dein Standort",
+  "modal_title_step_find": "Suche",
+  "modal_p_1_step_3": "In deiner Umgebung wurden {isConfirm} passende Frauen für dich gefunden!",
+  "modal_p_2_step_3": "Frauen werden in der Umgebung gesucht...",
+  "modal_p_3_step_3": "Verrate uns, wo wir für dich Frauen suchen sollen!",
+  "modal_button_step_3": "Jetzt anmelden!",
+  "modal_button_step_find": "Suchen!",
+
+
+  "modal_title_step_4":"Melde dich an und lege los!",
+  "modal_p_1_step_4": "Deinen persönlicher Zugangs-Code kommt per Mail!",
+  "modal_button_step_4": "Jetzt kostenlos starten!",
+
+  "modal_step": "Schritt {isStep} von 4",
+
+  "input_placeholder_nick": "Nutzername",
+  "input_placeholder_password":"Passwort",
+  "input_placeholder_mail": "E-Mail Adresse",
+  "input_placeholder_post_code": "PLZ",
+  "input_placeholder_day": "Tag",
+  "input_placeholder_month": "Monat",
+  "input_placeholder_year": "Jahr"
+}

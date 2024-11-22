@@ -9,7 +9,7 @@ import './slider.scss';
 
 import Tag from "../Tag/Tag.jsx";
 
-import data from '../../posts.json';
+import data from '../../slide_list.json';
 import {useTranslation} from "react-i18next";
 import {useModal} from "../Modal/ModalContext.jsx";
 import { Navigation, Autoplay } from 'swiper/modules';
@@ -62,7 +62,7 @@ export default function TopSlider() {
                 loop={true}
                 loopAdditionalSlides={2}
                 autoplay={{
-                    delay: 3000, 
+                    delay: 3000,
                     disableOnInteraction: false,
                     pauseOnMouseEnter: true,
                     waitForTransition: false,
@@ -109,12 +109,17 @@ export default function TopSlider() {
                                 <div className="image-placeholder">
                                     <img src={record.photo} alt=""/>
                                 </div>
-                                <div className="tags">
-                                    <Tag type={record.badge}/>
-                                </div>
+                                {record.badge ?
+                                    <div className="tags">
+                                        <Tag type={record.badge}/>
+                                    </div>
+                                    :
+                                    <></>
+                                }
+
                                 <div className="content">
-                                    <p className="title">{getLocalizedValue(record.title)}</p>
-                                    <p className="location">{getLocalizedValue(record.location)}</p>
+                                <p className="title">{getLocalizedValue(record.title)}</p>
+                                    <p className="location">{record?.location ? getLocalizedValue(record?.location) : ''}</p>
                                     <p className="description">{getLocalizedValue(record.description)}</p>
                                 </div>
                             </div>

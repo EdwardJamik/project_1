@@ -50,5 +50,18 @@
       "de": "4 Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
       "dk": "4 Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
     }
+  },
+  {
+    "photo": "https://nostrahomes.com.au/uploads/cms/unknown.jpg",
+    "title": {
+      "en": "4 Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+      "de": "4 Lorem Ipsum is simply dummy text of the printing and typesetting industry.",
+      "dk": "4 Lorem Ipsum is simply dummy text of the printing and typesetting industry."
+    },
+    "description": {
+      "en": "4 Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      "de": "4 Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book.",
+      "dk": "4 Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book."
+    }
   }
 ]

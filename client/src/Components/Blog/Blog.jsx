@@ -86,9 +86,13 @@ const Blog = () => {
                                     <div className="image-placeholder">
                                         <img src={record.photo} alt="Blog image"/>
                                     </div>
-                                    <div className="tags">
-                                        <Tag type={record.badge}/>
-                                    </div>
+                                    {record.badge ?
+                                        <div className="tags">
+                                            <Tag type={record.badge}/>
+                                        </div>
+                                        :
+                                        <></>
+                                    }
                                     <div className="details">
                                         <p className="title">{getLocalizedValue(record?.title)}</p>
                                         <p className="description">{getLocalizedValue(record?.description)}</p>
