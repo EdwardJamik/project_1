@@ -47,9 +47,9 @@ footer {
     @media screen and (max-width: 768px) {
       display: grid;
       grid-template-columns: repeat(4, auto);
-      //grid-template-rows: repeat(2, auto);
       grid-column-gap: 1.25rem;
-      //grid-row-gap: 1.25rem;
+      padding-bottom: 20px;
+      box-sizing: border-box;
     }
 
     & .sert {
