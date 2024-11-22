@@ -74,10 +74,16 @@ footer {
       align-items: center;
       justify-content: center;
 
+      transition: all .4s;
+
       font-size: 14px;
       cursor: pointer;
       @media screen and (max-width: 768px) {
         width: min-content;
+      }
+
+      &:hover{
+        transform: scale(1.05);
       }
 
     }

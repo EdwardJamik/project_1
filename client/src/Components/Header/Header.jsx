@@ -1,4 +1,4 @@
-import React from 'react';
+import React, {useEffect, useState} from 'react';
 import './header.scss'
 
 import logo from '../../Assets/logo.png'
@@ -42,12 +42,20 @@ const adIcon = [
 const Header = () => {
     const { i18n } = useTranslation();
     const { t } = useTranslation();
-
+    const [classAdded, setClassAdded] = useState(false);
     const { openModal } = useModal();
     const handleOpen = (e) => {
         e.target.blur();
         openModal();
     };
+
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setClassAdded(true);
+        }, 4000); // 4 seconds delay
+
+        return () => clearTimeout(timer); // Cleanup on unmount
+    }, []);
 
     return (
         <header className="header">
@@ -63,8 +71,8 @@ const Header = () => {
 
                 <div className="tools">
                     <div className="menu-item" onClick={handleOpen}>
-                        <div className="icon">{mailingIcon}</div>
-                        <span>{t('text_box')}</span>
+                        <div className={classAdded ? 'icon pulse' : 'icon'}>{mailingIcon}</div>
+                        <span>{t('text_box')} {classAdded ? "(1)":''}</span>
                     </div>
                     <div className="menu-item" onClick={handleOpen}>
                         <div className="icon">{moreIcon}</div>
