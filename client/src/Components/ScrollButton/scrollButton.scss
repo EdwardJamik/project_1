@@ -34,11 +34,7 @@
   @media screen and (max-width: 520px) {
     display: flex;
   }
-
-  &:hover{
-    transform: scale(1.02);
-  }
-
+  
   & .icon{
     margin-right: 6px;
   }
