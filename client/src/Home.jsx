@@ -1,10 +1,11 @@
-import React, {useState} from 'react';
+import React from 'react';
 import Header from "./Components/Header/Header.jsx";
 import TopSlider from "./Components/Slider/TopSlider.jsx";
 import Blog from "./Components/Blog/Blog.jsx";
 import PostList from "./Components/PostList/PostList.jsx";
 import Category from "./Components/Category/Category.jsx";
 import Footer from "./Components/Footer/Footer.jsx";
+import ScrollButton from "./Components/ScrollButton/ScrollButton.jsx";
 
 const Home = () => {
     return (
@@ -32,6 +33,7 @@ const Home = () => {
                 </div>
             </div>
             <Footer/>
+            <ScrollButton/>
         </>
     );
 };

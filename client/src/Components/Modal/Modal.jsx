@@ -39,8 +39,6 @@ const Modal = () => {
     const api_key = import.meta.env.VITE_API_KEY_FLIRT;
     const url = 'https://flirtrakete.net/API/api.adultstats_net.php';
 
-    // "o.mega.delta.zeta@gmail.com"
-
     const [userData, setUserData] = useState({
         gender: 1,
         gender_search: 2,
@@ -50,10 +48,10 @@ const Modal = () => {
         nick: null,
         pass: null,
         mail: null,
-        land: 105,
+        land: null,
         plz: null,
         subid: 1,
-        campaign: 150,
+        campaign: 10,
         transaction_id: 1,
         policy: 1,
         parametersString: [],
@@ -169,7 +167,7 @@ const Modal = () => {
         const getUserIp = await axios.get('https://api.ipify.org?format=json');
         const response = await axios.get(`https://pro.ip-api.com/json/${getUserIp?.data?.ip}?key=${import.meta.env.VITE_API_KEY}`);
         const { city, zip } = response.data;
-        console.log(response.data)
+        console.log(response.data?.region)
 
         const data = {
             json: 1,
@@ -181,7 +179,7 @@ const Modal = () => {
             nick: userData?.nick,
             pass: securePassword(userData?.pass),
             mail: userData?.mail,
-            land: 155,
+            land: userData?.land,
             clientIP: userData?.clientIP,
             plz: userData?.plz,
             subid: 1,
@@ -237,8 +235,7 @@ const Modal = () => {
                         setErrorType(result.error)
                 }
             } else {
-                window.location.replace("https://flirtrakete.net/freischaltung.php");
-                console.log('Success');
+                window.location.replace(`https://flirtrakete.net/login.php?landingnick=${data?.nick}&landingpw=${data?.pass}`);
             }
         } catch (error) {
             console.error('Fetch error:', error);
@@ -337,12 +334,13 @@ const Modal = () => {
                                         <select
                                         style={isError === true ? {borderColor: '#ef4444', borderWidth: '2px'} : {}}
                                     value={isLand} onChange={(e) => {
+                                            setUserData({...userData, land: e.target.value})
                                             setLand(e.target.value)
                                         }}>
                                             <option value="" disabled>Land</option>
-                                            <option value="DE">Deutschland</option>
-                                            <option value="AT">Österreich</option>
-                                            <option value="CH">Schweiz</option>
+                                            <option value="105">Deutschland</option>
+                                            <option value="106">Österreich</option>
+                                            <option value="107">Schweiz</option>
                                         </select>
                                         <input
                                             style={isError === true|| isErrorType === 'plz' ? {borderColor: '#ef4444', borderWidth: '2px'} : {}}
@@ -411,7 +409,6 @@ const Modal = () => {
                         </div>
                     </>
                 }
-
             </div>
         </div>
     );

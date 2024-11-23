@@ -44,18 +44,13 @@ export default function TopSlider() {
 
     const fetchLocation = async () => {
         try {
-                    const getUserIp = await axios.get('https://api.ipify.org?format=json');
-                    const response = await axios.get(`https://pro.ip-api.com/json/${getUserIp?.data?.ip}?key=${import.meta.env.VITE_API_KEY}`);
-                    const { city, zip } = response.data;
+            const getUserIp = await axios.get('https://api.ipify.org?format=json');
+            const response = await axios.get(`https://pro.ip-api.com/json/${getUserIp?.data?.ip}?key=${import.meta.env.VITE_API_KEY}`);
+            const { city, zip } = response.data;
 
-                    const result = {
-                        city,
-                        zip,
-                    };
-
-                    setLocationData(result);
+            setLocationData({ city, zip });
         } catch (err) {
-            console.log(err)
+            console.log(err);
         }
     };
 
@@ -65,11 +60,17 @@ export default function TopSlider() {
     };
 
 
-    useEffect( () => {
-        fetchLocation();
-        const selectedItems = getRandomItems(data, 10);
-        setRandomItems(selectedItems);
+    useEffect(() => {
+        const fetchData = async () => {
+            const selectedItems = getRandomItems(data, 10);
+            setRandomItems(selectedItems);
+
+            fetchLocation();
+        };
+
+        fetchData();
     }, []);
+
 
     const getLocalizedValue = (localizedObject) => {
         return localizedObject[currentLanguage] || localizedObject['de'] || '';

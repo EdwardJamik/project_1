@@ -1,0 +1,45 @@
+.create-ad-btn {
+
+  position: fixed;
+
+  bottom: -100px;
+  z-index: 99;
+  left: 50%;
+  transform: translate(-50%, 0);
+
+  display: none;
+  align-items: center;
+
+  font-weight: 600;
+
+  background-color: #c6507e;
+  color: white;
+  padding: 5px 10px;
+  border: none;
+  border-radius: 4px;
+  margin-left: 10px;
+  cursor: pointer;
+  height: 40px;
+  transition: all .3s;
+
+  &.view{
+    bottom: 3%;
+  }
+
+  @media screen and (max-width: 768px) {
+    width: 100%;
+    max-width: 200px;
+  }
+
+  @media screen and (max-width: 520px) {
+    display: flex;
+  }
+
+  &:hover{
+    transform: scale(1.02);
+  }
+
+  & .icon{
+    margin-right: 6px;
+  }
+}
