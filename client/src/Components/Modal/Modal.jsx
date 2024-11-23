@@ -2,8 +2,8 @@ import React, {useEffect, useState} from 'react';
 import { useModal } from './ModalContext';
 import './modal.scss'
 import axios from "axios";
-import md5 from 'md5';
 import {useTranslation} from "react-i18next";
+import CryptoJS from 'crypto-js'
 
 const closeIcon = [
     <svg viewBox="0 0 24 24" width='20px' height='20px' fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -36,6 +36,11 @@ const Modal = () => {
         setStepInfo(updatedStep)
    },[isActive])
 
+    const api_key = import.meta.env.VITE_API_KEY_FLIRT;
+    const url = 'https://flirtrakete.net/API/api.adultstats_net.php';
+
+    // "o.mega.delta.zeta@gmail.com"
+
     const [userData, setUserData] = useState({
         gender: 1,
         gender_search: 2,
@@ -51,12 +56,13 @@ const Modal = () => {
         campaign: 150,
         transaction_id: 1,
         policy: 1,
-        parametersString: "¶meter[]=s2|Testlinks_18¶meter[]=tracking_id|664f0a60746711521921333459c64acd8efaa82e74",
+        parametersString: [],
         clientIP: null,
         hash: null
     })
 
     const [isError, setError] = useState(null)
+    const [isErrorType, setErrorType] = useState(null)
 
     useEffect(() => {
         const fetchIp = async () => {
@@ -146,54 +152,96 @@ const Modal = () => {
         }
     }
 
-    const calculateHash = () => {
-        const secret = 'Gn8F3AlLq19z';
-        const safeValue = value => value === null || value === undefined ? '' : value;
-
-        const paramsString =
-            `${safeValue(userData.gender)}${safeValue(userData.gender_search)}${safeValue(userData.tag)}${safeValue(userData.monat)}${safeValue(userData.jahr)}${safeValue(userData.nick)}${safeValue(userData.pass)}${safeValue(userData.mail)}${safeValue(userData.land)}${safeValue(userData.plz)}${safeValue(userData.subid)}${safeValue(userData.campaign)}${userData.parametersString}`;
-        return md5(paramsString + secret);
+    const securePassword = (password) => {
+        const salt = import.meta.env.VITE_SALT_PASSWORD;
+        const combined = password + salt;
+        return CryptoJS.SHA256(combined).toString(CryptoJS.enc.Hex);
     };
 
     const sendRequest = async () => {
+        console.log('Sending data...');
         try {
-            const gender = 1;
-            const gender_search = 2;
-            const tag = 1;
-            const monat = 1;
-            const jahr = 1980;
-            const nick = "mpolly";
-            const pass = "mpolly";
-            const mail = "mpolly1@web.de";
-            const land = 105;
-            const plz = 10115;
-            const subid = 1;
-            const campaign = 150;
-            const parametersString = "¶meter[]=s2|Testlinks_18¶meter[]=tracking_id|664f0a60746711521921333459c64acd8efaa82e74";
-            const parameters = ["s2|Testlinks_18", "tracking_id|664f0a60746711521921333459c64acd8efaa82e74"];
-            const secret = "Gn8F3AlLq19z";
+            hideErrorMsg();
+        } catch {
+            console.log('No hiding');
+        }
 
-            const paramString = parameters.join('');
-            const params =
-                `${gender}${gender_search}${tag}${monat}${jahr}${nick}${pass}${mail}${land}${plz}${subid}${campaign}${paramString}`;
+        const getUserIp = await axios.get('https://api.ipify.org?format=json');
+        const response = await axios.get(`https://pro.ip-api.com/json/${getUserIp?.data?.ip}?key=${import.meta.env.VITE_API_KEY}`);
+        const { city, zip } = response.data;
+        console.log(response.data)
 
-            const hashTemp = md5(params + secret);
+        const data = {
+            json: 1,
+            gender: 1,
+            gender_search: 2,
+            tag: userData?.tag,
+            monat: userData?.monat,
+            jahr: userData?.jahr,
+            nick: userData?.nick,
+            pass: securePassword(userData?.pass),
+            mail: userData?.mail,
+            land: 155,
+            clientIP: userData?.clientIP,
+            plz: userData?.plz,
+            subid: 1,
+            campaign: 10,
+            policy: 1,
+            "parameter[]": []
+        };
 
-            const parameter = `gender=${gender}&gender_search=${gender_search}&tag=${tag}&monat=${monat}&jahr=${jahr}&nick=${nick}` +
-                `&pass=${pass}&mail=${mail}&land=${land}&plz=${plz}&subid=${subid}&campaign=${campaign}` +
-                `&transaction_id=1&policy=1${parametersString}&hash=${hashTemp}&clientIP=111.111.111.111`;
+        const paramsString = `${data.gender}${data.gender_search}${data.tag}${data.monat}${data.jahr}${data.nick}${data.pass}${data.mail}${data.land}${data.plz}${data.subid}${data.campaign}${data["parameter[]"].join('')}`;
+        const hash = CryptoJS.MD5(paramsString + api_key).toString();
 
-            const url = `https://flirtrakete.net/API/api.adultstats_net.php?${parameter}`;
+        console.log('Generated hash:', hash);
 
-            try {
+        data.hash = hash;
 
-                const response = await axios.get(url);
-                console.log("API Response:", response.data);
-            } catch (error) {
-                console.error("API Error:", error);
+        const formBody = Object.keys(data)
+            .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+            .join('&');
+
+        try {
+            const response = await fetch(url, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: formBody
+            });
+
+            const result = await response.json();
+            console.log('Server response:', result);
+
+            if (!result.success) {
+                switch (result.error) {
+                    case "plz":
+                        console.error('PLZ ERROR:', result.errortext);
+                        setError(result.errortext);
+                        setErrorType(result.error)
+                        setStep(3)
+                        setConfirm(false)
+                        setLoading(false)
+                        break;
+                    case "mail":
+                        setError("Diese Mail Adresse ist schon vergeben");
+                        setErrorType(result.error)
+                        break;
+                    case "nick":
+                        setError(result.errortext);
+                        setErrorType(result.error)
+                        console.log('Nickname error');
+                        break;
+                    default:
+                        setError(result.errortext || 'An error occurred');
+                        setErrorType(result.error)
+                }
+            } else {
+                window.location.replace("https://flirtrakete.net/freischaltung.php");
+                console.log('Success');
             }
         } catch (error) {
-            console.error('Error:', error);
+            console.error('Fetch error:', error);
         }
     };
 
@@ -297,9 +345,14 @@ const Modal = () => {
                                             <option value="CH">Schweiz</option>
                                         </select>
                                         <input
-                                            style={isError === true ? {borderColor: '#ef4444', borderWidth: '2px'} : {}}
-                                            type="text" placeholder={t('input_placeholder_post_code')} value={userData?.plz} onChange={(e) => {
-                                            setUserData({...userData, plz: e.target.value})
+                                            style={isError === true|| isErrorType === 'plz' ? {borderColor: '#ef4444', borderWidth: '2px'} : {}}
+                                            type="text" placeholder={t('input_placeholder_post_code')} value={userData?.plz}
+                                            onChange={(e) => {
+                                                if(isErrorType === 'plz') {
+                                                    setError(null)
+                                                    setErrorType(null)
+                                                }
+                                                setUserData({...userData, plz: e.target.value})
                                         }}/>
                                     </div>
 
@@ -324,12 +377,29 @@ const Modal = () => {
 
                         <div className="modal_content step_4">
 
-                            <input style={!userData.nick && isError ? {borderColor: '#ef4444', borderWidth: '2px'} : {}} value={userData.nick} onChange={(e)=>{setUserData({...userData, nick: e.target.value})}} type="text" placeholder={t('input_placeholder_nick')}/>
-                            <input style={!userData.pass && isError ? {borderColor: '#ef4444', borderWidth: '2px'} : {}} value={userData.pass} onChange={(e)=>{setUserData({...userData, pass: e.target.value})}} type="password" placeholder={t('input_placeholder_password')}/>
+                            <input style={!userData.nick && isError || isErrorType === 'nick' ? {borderColor: '#ef4444', borderWidth: '2px'} : {}} value={userData.nick}
+                                   onChange={(e)=>{
+                                       if(isErrorType === 'nick') {
+                                           setError(null)
+                                           setErrorType(null)
+                                       }
+                                       setUserData({...userData, nick: e.target.value})}} type="text" placeholder={t('input_placeholder_nick')
+                            }/>
+                            <input style={!userData.pass && isError ? {borderColor: '#ef4444', borderWidth: '2px'} : {}} value={userData.pass}
+                                   onChange={(e)=>{
+                                       setUserData({...userData, pass: e.target.value})}} type="password" placeholder={t('input_placeholder_password')
+                            }/>
 
                             <p>{t('modal_p_1_step_4')}</p>
 
-                            <input style={!userData.mail && isError || isMailError ? {borderColor: '#ef4444', borderWidth: '2px'} : {}} value={userData.mail} onChange={(e)=>{setUserData({...userData, mail: e.target.value})}} type="email" className='email_input' placeholder={t('input_placeholder_mail')}/>
+                            <input style={!userData.mail && isError || isMailError ? {borderColor: '#ef4444', borderWidth: '2px'} : {}} value={userData.mail}
+                                   onChange={(e)=>{
+                                       if(isErrorType === 'mail') {
+                                           setError(null)
+                                           setErrorType(null)
+                                       }
+                                       setUserData({...userData, mail: e.target.value})}
+                            } type="email" className='email_input' placeholder={t('input_placeholder_mail')}/>
 
                             <button onClick={nextStep}>{t('modal_button_step_4')}</button>
 

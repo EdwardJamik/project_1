@@ -141,7 +141,7 @@ export default function TopSlider() {
                                     <div className="content">
                                         <p className="title">{getLocalizedValue(record.title)}</p>
                                         <p className="location">
-                                            {locationData?.zip} {locationData?.city} {distance ? `${distance} km` : ``}
+                                            {distance ? `${distance} km` : ``} von {locationData?.city}
                                         </p>
                                         <p className="description">{getLocalizedValue(record.description)}</p>
                                     </div>
