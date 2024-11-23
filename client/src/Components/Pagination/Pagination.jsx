@@ -1,12 +1,11 @@
-import React, { useEffect, useState } from 'react';
+import React, {useEffect, useState} from 'react';
 import './pagination.scss';
-import { useTranslation } from 'react-i18next';
+import {useTranslation} from "react-i18next";
 
 const Pagination = ({ totalPages, currentPage, handlePageChange }) => {
     const { t } = useTranslation();
 
     const [maxOffset, setMaxOffset] = useState(4);
-    const [randomPages, setRandomPages] = useState([]);
 
     useEffect(() => {
         const updateOffset = () => {
@@ -19,24 +18,9 @@ const Pagination = ({ totalPages, currentPage, handlePageChange }) => {
         return () => window.removeEventListener('resize', updateOffset);
     }, []);
 
-    useEffect(() => {
-        // Генерація випадкових сторінок, якщо вони більше 1
-        if (totalPages > 1) {
-            let pages = [];
-            // Генеруємо випадкові сторінки для демонстрації
-            for (let i = 2; i <= totalPages - 1; i++) {
-                if (Math.random() > 0.5) { // 50% шанс для кожної сторінки бути виведеною
-                    pages.push(i);
-                }
-            }
-            setRandomPages([1, ...pages, totalPages]); // Додаємо першу і останню сторінки
-        }
-    }, [totalPages]);
-
     const renderPagination = () => {
         const pages = [];
 
-        // Перша сторінка
         pages.push(
             <button
                 key="1"
@@ -47,40 +31,42 @@ const Pagination = ({ totalPages, currentPage, handlePageChange }) => {
             </button>
         );
 
-        // Якщо потрібно, додаємо "..."
         if (currentPage > 4) {
             pages.push(
-                <button key="dots-left" disabled className="dots">
+                <button
+                    key="dots-left"
+                    disabled
+                    className="dots"
+                >
                     ...
                 </button>
             );
         }
 
-        // Виводимо сторінки
-        randomPages.forEach(page => {
-            if (page !== currentPage) {
-                pages.push(
-                    <button
-                        key={page}
-                        onClick={() => handlePageChange(page)}
-                        className={currentPage === page ? 'active' : ''}
-                    >
-                        {page}
-                    </button>
-                );
-            }
-        });
+        for (let i = Math.max(2, currentPage - maxOffset); i <= Math.min(totalPages - 1, currentPage + maxOffset); i++) {
+            pages.push(
+                <button
+                    key={i}
+                    onClick={() => handlePageChange(i)}
+                    className={currentPage === i ? 'active' : ''}
+                >
+                    {i}
+                </button>
+            );
+        }
 
-        // Якщо потрібно, додаємо "..."
         if (currentPage < totalPages - 3) {
             pages.push(
-                <button key="dots-right" disabled className="dots">
+                <button
+                    key="dots-right"
+                    disabled
+                    className="dots"
+                >
                     ...
                 </button>
             );
         }
 
-        // Остання сторінка
         if (totalPages > 1) {
             pages.push(
                 <button
@@ -116,5 +102,6 @@ const Pagination = ({ totalPages, currentPage, handlePageChange }) => {
         </div>
     );
 };
+
 
 export default Pagination;
