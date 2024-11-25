@@ -136,6 +136,7 @@ export default function TopSlider() {
                                             src={record?.photo}
                                             alt=""
                                             loading="lazy"
+                                            sizes={"(max-width: 170px)"}
                                         />
                                     </div>
                                     {record?.badge && (
