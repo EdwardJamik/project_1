@@ -27,21 +27,16 @@ const Blog = () => {
         openModal();
     }, [openModal]);
 
-    // Безпечна функція локалізації
     const getLocalizedValue = useCallback((localizedObject) => {
-        // Перевірка на існування об'єкта та наявність перекладу
         if (!localizedObject) return '';
         return localizedObject[currentLanguage] || localizedObject['de'] || '';
     }, [currentLanguage]);
 
-    // Мемоїзація даних та фільтрації
     const processedData = useMemo(() => {
-        // Фільтрація по категорії з безпечною перевіркою
         const filteredData = category
             ? rawData.filter((item) => item.category === category)
             : rawData;
 
-        // Якщо немає записів - повертаємо порожній масив
         if (filteredData.length === 0) return [];
 
         const totalRecordsNeeded = 100 * recordsPerPage;
@@ -55,7 +50,6 @@ const Blog = () => {
         return extendedData;
     }, [category, recordsPerPage]);
 
-    // Оптимізований ефект для пагінації
     useEffect(() => {
         const indexOfLastRecord = currentPage * recordsPerPage;
         const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
@@ -65,7 +59,6 @@ const Blog = () => {
         setTotalPages(processedData.length > 0 ? 100 : 1);
     }, [currentPage, processedData, recordsPerPage]);
 
-    // Скролінг та фокус
     useEffect(() => {
         if (blogListRef.current) {
             blogListRef.current.scrollIntoView({
@@ -79,7 +72,6 @@ const Blog = () => {
         }
     }, [page]);
 
-    // Оптимізована зміна сторінки
     const handlePageChange = useCallback((pageNumber) => {
         if (category) {
             navigate(`/category/${category}/${pageNumber}${location?.search ? location?.search : ''}`);
@@ -88,10 +80,8 @@ const Blog = () => {
         }
     }, [category, location, navigate]);
 
-    // Мемоїзований рендер елементів з безпечною перевіркою
     const BlogItems = useMemo(() => {
         return currentRecords.map((record, index) => {
-            // Безпечна перевірка наявності запису
             if (!record) return null;
 
             const randomMinutes = Math.floor(Math.random() * (29 - 3 + 1)) + 3;
@@ -131,7 +121,7 @@ const Blog = () => {
                     </div>
                 </div>
             );
-        }).filter(Boolean); // Видаляємо можливі null значення
+        }).filter(Boolean);
     }, [currentRecords, handleOpen, getLocalizedValue]);
 
     return (

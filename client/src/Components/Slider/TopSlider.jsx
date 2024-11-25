@@ -6,7 +6,6 @@ import React, {
 } from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
-// Динамічний імпорт стилів
 import 'swiper/css';
 import 'swiper/css/pagination';
 import 'swiper/css/autoplay';
@@ -20,7 +19,6 @@ import { useModal } from "../Modal/ModalContext.jsx";
 import { Navigation, Autoplay } from 'swiper/modules';
 import axios from "axios";
 
-// Винесення іконок в окремий компонент
 const NavigationIcons = {
     Right: () => (
         <svg viewBox="0 0 24 24" width='20px' height='20px' fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -43,34 +41,28 @@ export default function TopSlider() {
         openModal();
     }, [openModal]);
 
-    // Кешування локалізованої функції
     const getLocalizedValue = useCallback((value) => {
         return value?.[currentLanguage] || '';
     }, [currentLanguage]);
 
-    // Стан для випадкових елементів та локації
     const [state, setState] = useState({
         randomItems: [],
         locationData: null
     });
 
-    // Мемоїзація функції отримання випадкових елементів
     const getRandomItems = useCallback((sourceData, count) => {
         return [...sourceData]
             .sort(() => 0.5 - Math.random())
             .slice(0, count);
     }, []);
 
-    // Ефект для завантаження даних
     useEffect(() => {
         const fetchData = async () => {
             try {
-                // Паралельне виконання запитів
                 const [locationResponse] = await Promise.allSettled([
                     fetchLocation()
                 ]);
 
-                // Оновлення стану
                 setState(prev => ({
                     ...prev,
                     randomItems: getRandomItems(data, 10),
@@ -86,7 +78,6 @@ export default function TopSlider() {
         fetchData();
     }, [getRandomItems]);
 
-    // Функція отримання локації
     const fetchLocation = async () => {
         try {
             const { data: ipData } = await axios.get('https://api.ipify.org?format=json');
@@ -100,7 +91,6 @@ export default function TopSlider() {
         }
     };
 
-    // Налаштування Swiper
     const swiperSettings = useMemo(() => ({
         spaceBetween: 10,
         slidesPerView: 5,
@@ -143,22 +133,22 @@ export default function TopSlider() {
                                 <div className="card" onClick={handleOpen}>
                                     <div className="image-placeholder">
                                         <img
-                                            src={record.photo}
+                                            src={record?.photo}
                                             alt=""
-                                            loading="lazy"  // Додано ліниве завантаження
+                                            loading="lazy"
                                         />
                                     </div>
-                                    {record.badge && (
+                                    {record?.badge && (
                                         <div className="tags">
-                                            <Tag type={record.badge} />
+                                            <Tag type={record?.badge} />
                                         </div>
                                     )}
                                     <div className="content">
-                                        <p className="title">{getLocalizedValue(record.title)}</p>
+                                        <p className="title">{getLocalizedValue(record?.title)}</p>
                                         <p className="location">
                                             {distance ? `${distance} km` : ``} von {state.locationData?.city}
                                         </p>
-                                        <p className="description">{getLocalizedValue(record.description)}</p>
+                                        <p className="description">{getLocalizedValue(record?.description)}</p>
                                     </div>
                                 </div>
                             </SwiperSlide>
