@@ -4,6 +4,8 @@ import './modal.scss'
 import axios from "axios";
 import {useTranslation} from "react-i18next";
 import CryptoJS from 'crypto-js'
+import AutoFill from "./AutoFill.jsx";
+import Select from "react-select";
 
 const closeIcon = [
     <svg viewBox="0 0 24 24" width='20px' height='20px' fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -11,25 +13,28 @@ const closeIcon = [
               strokeLinecap="round" strokeLinejoin="round"></path>
     </svg>
 ]
+
+const domains = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "ukr.net", "i.ua"];
 const Modal = () => {
-    const { t } = useTranslation();
+    const {t} = useTranslation();
 
     const {isActive, closeModal} = useModal();
 
-    const [isStep, setStep] = useState(1)
+    const [isStep, setStep] = useState(4)
     const [isLand, setLand] = useState('')
     const [isLoading, setLoading] = useState(false)
     const [isMailError, setMailError] = useState(false)
     const [isConfirm, setConfirm] = useState(0)
+    const [isLoadButton, setLoadButton] = useState(false)
 
     const [isStepInfo, setStepInfo] = useState('')
 
-    useEffect(()=>{
-            setStep(1)
-            setLand('')
-            setLoading(false)
-            setMailError(false)
-            setConfirm(0)
+    useEffect(() => {
+        setStep(4)
+        setLand('')
+        setLoading(false)
+        setMailError(false)
+        setConfirm(0)
 
         const step_info = t('modal_step')
         const updatedStep = step_info.replace("{isStep}", 1);
@@ -56,7 +61,8 @@ const Modal = () => {
         policy: 1,
         parametersString: [],
         clientIP: null,
-        hash: null
+        hash: null,
+        fallback: 10
     })
 
     const [isError, setError] = useState(null)
@@ -157,17 +163,13 @@ const Modal = () => {
     };
 
     const sendRequest = async () => {
-        console.log('Sending data...');
         try {
-            hideErrorMsg();
-        } catch {
-            console.log('No hiding');
-        }
+        setLoadButton(true)
+
 
         const getUserIp = await axios.get('https://api.ipify.org?format=json');
-        const response = await axios.get(`https://pro.ip-api.com/json/${getUserIp?.data?.ip}?key=${import.meta.env.VITE_API_KEY}`);
-        const { city, zip } = response.data;
-        console.log(response.data?.region)
+        const getLand = await axios.get(`https://pro.ip-api.com/json/${getUserIp?.data?.ip}?key=${import.meta.env.VITE_API_KEY}`);
+        const { city, zip } = getLand.data;
 
         const data = {
             json: 1,
@@ -183,15 +185,14 @@ const Modal = () => {
             clientIP: userData?.clientIP,
             plz: userData?.plz,
             subid: 1,
-            campaign: 10,
+            campaign: 163,
             policy: 1,
+            fallback:10,
             "parameter[]": []
         };
 
         const paramsString = `${data.gender}${data.gender_search}${data.tag}${data.monat}${data.jahr}${data.nick}${data.pass}${data.mail}${data.land}${data.plz}${data.subid}${data.campaign}${data["parameter[]"].join('')}`;
         const hash = CryptoJS.MD5(paramsString + api_key).toString();
-
-        console.log('Generated hash:', hash);
 
         data.hash = hash;
 
@@ -199,7 +200,7 @@ const Modal = () => {
             .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
             .join('&');
 
-        try {
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -209,35 +210,39 @@ const Modal = () => {
             });
 
             const result = await response.json();
-            console.log('Server response:', result);
 
             if (!result.success) {
                 switch (result.error) {
                     case "plz":
-                        console.error('PLZ ERROR:', result.errortext);
                         setError(result.errortext);
                         setErrorType(result.error)
                         setStep(3)
                         setConfirm(false)
                         setLoading(false)
+                        setLoadButton(false)
                         break;
                     case "mail":
                         setError("Diese Mail Adresse ist schon vergeben");
                         setErrorType(result.error)
+                        setLoadButton(false)
                         break;
                     case "nick":
                         setError(result.errortext);
                         setErrorType(result.error)
                         console.log('Nickname error');
+                        setLoadButton(false)
                         break;
                     default:
                         setError(result.errortext || 'An error occurred');
                         setErrorType(result.error)
+                        setLoadButton(false)
                 }
             } else {
+                setLoadButton(false)
                 window.location.replace(`https://flirtrakete.net/login.php?landingnick=${data?.nick}&landingpw=${data?.pass}`);
             }
         } catch (error) {
+            setLoadButton(false)
             console.error('Fetch error:', error);
         }
     };
@@ -247,6 +252,40 @@ const Modal = () => {
 
         return <>{updatedText}</>;
     }
+
+    const [inputValue, setInputValue] = useState("");
+    const [filteredOptions, setFilteredOptions] = useState([]);
+
+    const allDomains = ["gmail.com", "yahoo.com", "outlook.com", "example.com"];
+
+    const handleInputChange = (value) => {
+        // setInputValue(value);
+        // if(isErrorType === 'mail') {
+            setError(null)
+            setErrorType(null)
+        // }
+
+        setUserData({...userData, mail: value})
+
+        if (value.includes("@")) {
+            const [, enteredDomain] = value.split("@"); // Витягуємо текст після '@'
+            const filtered = allDomains
+                .filter((domain) => domain.startsWith(enteredDomain)) // Фільтруємо домени
+                .map((domain) => ({ label: `${value.split("@")[0]}@${domain}`, value: `${value.split("@")[0]}@${domain}` })); // Формуємо список опцій
+            setFilteredOptions(filtered);
+        } else {
+            setFilteredOptions([]); // Якщо немає '@', очищаємо список
+        }
+    };
+
+    const handleSelectChange = (selectedOption) => {
+        // console.log(selectedOption,selectedOption?.value)
+        setUserData({...userData, mail: selectedOption.value})
+    };
+
+    const handleClear = () => {
+        setUserData({...userData, mail: null}); // Очищаємо значення вручну
+    };
 
     return (
         <div className={isActive ? 'modal active' : 'modal'}>
@@ -390,16 +429,118 @@ const Modal = () => {
 
                             <p>{t('modal_p_1_step_4')}</p>
 
-                            <input style={!userData.mail && isError || isMailError ? {borderColor: '#ef4444', borderWidth: '2px'} : {}} value={userData.mail}
-                                   onChange={(e)=>{
-                                       if(isErrorType === 'mail') {
-                                           setError(null)
-                                           setErrorType(null)
-                                       }
-                                       setUserData({...userData, mail: e.target.value})}
-                            } type="email" className='email_input' placeholder={t('input_placeholder_mail')}/>
+                            {/*<input style={!userData.mail && isError || isMailError ? {borderColor: '#ef4444', borderWidth: '2px'} : {}} value={userData.mail}*/}
+                            {/*       onChange={(e)=>{*/}
+                            {/*           if(isErrorType === 'mail') {*/}
+                            {/*               setError(null)*/}
+                            {/*               setErrorType(null)*/}
+                            {/*           }*/}
+                            {/*           setUserData({...userData, mail: e.target.value})}*/}
+                            {/*} type="email" autoComplete="email" className='email_input' placeholder={t('input_placeholder_mail')}/>*/}
 
-                            <button onClick={nextStep}>{t('modal_button_step_4')}</button>
+                            <Select
+                                options={filteredOptions} // Використовуємо відфільтровані опції
+                                onInputChange={handleInputChange}
+                                onChange={handleSelectChange}
+                                // onChange={(e)=>{
+                                //     if(isErrorType === 'mail') {
+                                //         setError(null)
+                                //         setErrorType(null)
+                                //     }
+                                //     setUserData({...userData, mail: e.target.value})}}
+                                inputValue={userData?.mail}
+                                placeholder={t('input_placeholder_mail')}
+                                isClearable
+                                onClear={handleClear}
+                                value={userData.mail}
+                                // noOptionsMessage={() =>
+                                //     userData?.mail?.includes("@")
+                                //         ? "No matching domains"
+                                //         : "Type @ to see suggestions"
+                                // }
+                                menuIsOpen={userData?.mail?.includes("@") && filteredOptions.length > 0}
+                                styles={{
+                                    control: (base) => (!userData.mail && isError || isMailError ? {
+                                        ...base,
+                                        width: "100%",
+                                        minWidth:'340px',
+                                        maxWidth:'340px',
+                                        minHeight: "40px",
+                                        height: "40px",
+                                        margin:'14px 0',
+                                        fontSize: "0.833rem",
+                                        padding: "0 0 0 16px",
+                                        outline:'none',
+                                        borderColor: '#ef4444',
+                                        borderWidth: '2px'} :
+                                        {...base,
+                                            width: "100%",
+                                            minWidth:'340px',
+                                            maxWidth:'340px',
+                                            minHeight: "40px",
+                                            height: "40px",
+                                            margin:'14px 0',
+                                            fontSize: "0.833rem",
+                                            padding: "0 0 0 16px",
+                                            outline:'none',}),
+                                    valueContainer: (base) => ({
+                                        ...base,
+                                        padding: "0", // Внутрішні відступи тексту
+                                        color: '#000',
+                                        opacity:'1'
+                                    }),
+                                    singleValue: (base) => ({
+                                        ...base,
+                                        color: '#000',
+                                        opacity:'1'
+                                    }),
+                                    input: (base) => ({
+                                        ...base,
+                                        color: "#000",
+                                        fontSize: "0.833rem",
+                                        minHeight: "40px",
+                                        height: "40px",
+                                        padding:'0',
+                                        margin:'0',
+                                        opacity:'1',
+                                        outline:'none'
+                                    }),
+                                    placeholder: (base) => ({
+                                        ...base,
+                                        color: "#757587",
+                                        fontSize: "14px",
+                                    }),
+                                    dropdownIndicator: (base) => ({
+                                        ...base,
+                                        display:'none'
+                                    }),
+                                    indicatorSeparator: (base) => ({
+                                        ...base,
+                                        display: "none",
+                                    }),
+                                    menu: (base) => ({
+                                        ...base,
+                                        position: "absolute",
+                                        top: "auto",
+                                        bottom: "100%", // Меню випадає зверху
+                                        zIndex: 10,
+                                        backgroundColor: "#fff", // Білий фон випадаючого списку
+                                        borderRadius: "8px", // Закруглені кути
+                                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Тінь меню
+                                    }),
+                                    option: (base, state) => ({
+                                        ...base,
+                                        backgroundColor: state.isFocused ? "rgba(198, 80, 126, 0.4)" : "#fff",
+                                        color: state.isFocused ? "#fff" : "#333",
+                                        padding: "10px", // Відступи опцій
+                                        cursor: "pointer", // Зміна курсора при наведенні
+                                    }),
+                                }}
+                            />
+
+                            <button className={isLoadButton ? 'load' : ''} onClick={nextStep}>
+
+                                {t('modal_button_step_4')}</button>
 
                             {isError !== null &&
                                 <div className="warning">{isError}</div>

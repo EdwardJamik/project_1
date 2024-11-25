@@ -52,9 +52,9 @@ const Header = () => {
     useEffect(() => {
         const timer = setTimeout(() => {
             setClassAdded(true);
-        }, 4000); // 4 seconds delay
+        }, 4000);
 
-        return () => clearTimeout(timer); // Cleanup on unmount
+        return () => clearTimeout(timer);
     }, []);
 
     return (
@@ -72,8 +72,9 @@ const Header = () => {
                 <div className="tools">
                     <div className="menu-item" onClick={handleOpen}>
                         <div className={classAdded ? 'icon pulse' : 'icon'}>{mailingIcon}</div>
-                        <span>{t('text_box')} {classAdded ? "(1)":''}</span>
+                        <span>{t('text_box')}</span>
                     </div>
+
                     <div className="menu-item" onClick={handleOpen}>
                         <div className="icon">{moreIcon}</div>
                         <span>{t('text_more')}</span>

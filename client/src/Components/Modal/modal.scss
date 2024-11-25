@@ -1,3 +1,4 @@
+
 .modal {
   height: 100vh;
   width: 100vw;
@@ -82,9 +83,14 @@
       }
 
       & button {
-        background-color: #6366f1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        background-color: #8670fd;
         color: #fff;
         font-size: 16px;
+        font-weight: 400;
         line-height: 1.75rem;
         border: none;
 
@@ -95,6 +101,50 @@
 
         margin: 16px 0 16px;
         cursor: pointer;
+
+        &:hover{
+          background-color: #6450cc;
+        }
+
+        &:active{
+          background-color: transparent;
+          color: #6450cc;
+          border: 1px solid #6450cc;
+        }
+
+        &:before {
+          content: "";
+          display: inline-block;
+          width: 0;
+          height: 0;
+          border-radius: 50%;
+          border: 0 none;
+          margin-right: 0;
+          transition: all .5s;
+        }
+
+        &.load {
+          background-color: transparent;
+          color: #6450cc;
+          border: 1px solid #6450cc;
+          &:before {
+            width: 20px;
+            height: 20px;
+            border: 2px solid #6450cc;
+            border-top-color: white;
+            margin-right: 10px;
+            animation: rotating 1s infinite;
+          }
+        }
+
+        @keyframes rotating {
+          from {
+            transform: rotate(0deg);
+          }
+          to {
+            transform: rotate(360deg);
+          }
+        }
       }
 
       & .step {
@@ -217,7 +267,7 @@
       }
 
       &.step_4{
-        & input{
+        & input, & .email_selector{
           padding-left: 1rem;
           padding-right: 1rem;
           width: 100%;
@@ -229,6 +279,8 @@
           border-radius: 6px;
           border: 1px solid #9ab6cc;
           margin-bottom: 14px;
+
+          opacity: 1 !important;
 
           &.email_input{
             margin-top: 14px;

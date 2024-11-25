@@ -20,14 +20,14 @@ const Footer = () => {
         <footer>
             <div className="container">
                 <div className="sert">
-                    <img onClick={handleOpen} src={footer_img_1} alt="SSL"/>
-                    <img onClick={handleOpen} src={footer_img_2} alt="Amature"/>
-                    <img onClick={handleOpen} src={footer_img_3} alt="Empfehlung"/>
+                    <img src={footer_img_1} alt="SSL"/>
+                    <img src={footer_img_2} alt="Amature"/>
+                    <img src={footer_img_3} alt="Empfehlung"/>
                 </div>
-                {footer_link && footer_link[0] ? <span onClick={handleOpen}>{footer_link[0][currentLanguage]}</span> : ''}
-                {footer_link &&footer_link[1] ? <span onClick={handleOpen}>{footer_link[1][currentLanguage]}</span> : ''}
-                {footer_link &&footer_link[2] ? <span onClick={handleOpen}>{footer_link[2][currentLanguage]}</span> : ''}
-                {footer_link &&footer_link[3] ? <span onClick={handleOpen}>{footer_link[3][currentLanguage]}</span> : ''}
+                {footer_link && footer_link[0] ? <a href={footer_link[0]['link']}>{footer_link[0][currentLanguage]}</a> : ''}
+                {footer_link &&footer_link[1] ? <a href={footer_link[1]['link']}>{footer_link[1][currentLanguage]}</a> : ''}
+                {footer_link &&footer_link[2] ? <a href={footer_link[2]['link']}>{footer_link[2][currentLanguage]}</a> : ''}
+                {footer_link &&footer_link[3] ? <a href={footer_link[3]['link']}>{footer_link[3][currentLanguage]}</a> : ''}
             </div>
         </footer>
     );

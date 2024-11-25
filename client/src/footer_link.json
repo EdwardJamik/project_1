@@ -2,21 +2,25 @@
   {
     "de": "AGB",
     "en": "AGB",
-    "dk": "AGB"
+    "dk": "AGB",
+    "link": "https://adstraffic.one/landings/5/"
   },
   {
     "de": "Impressum",
     "en": "Impressum",
-    "dk": "Impressum"
+    "dk": "Impressum",
+    "link": "https://adstraffic.one/landings/5/"
   },
   {
     "de": "FAQ",
     "en": "FAQ",
-    "dk": "FAQ"
+    "dk": "FAQ",
+    "link": "https://adstraffic.one/landings/5/"
   },
   {
     "de": "Datenschutz",
     "en": "Datenschutz",
-    "dk": "Datenschutz"
+    "dk": "Datenschutz",
+    "link": "https://adstraffic.one/landings/5/"
   }
 ]
