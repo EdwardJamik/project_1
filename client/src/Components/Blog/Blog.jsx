@@ -1,17 +1,15 @@
-import React, {useEffect, useRef, useState} from 'react';
+import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import './blog.scss';
 import Tag from "../Tag/Tag.jsx";
-import data from '../../posts.json';
-import {useLocation, useNavigate, useParams} from "react-router-dom";
+import rawData from '../../posts.json';
+import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Pagination from "../Pagination/Pagination.jsx";
 import { useTranslation } from "react-i18next";
 import { useModal } from '../Modal/ModalContext.jsx';
 
 const Blog = () => {
-    const { i18n } = useTranslation();
+    const { i18n, t } = useTranslation();
     const currentLanguage = i18n.language;
-
-    const { t } = useTranslation();
 
     const blogListRef = useRef(null);
 
@@ -25,40 +23,49 @@ const Blog = () => {
     const recordsPerPage = 9;
 
     const { openModal } = useModal();
-    const handleOpen = () => {
+    const handleOpen = useCallback(() => {
         openModal();
-    };
+    }, [openModal]);
 
-    const getLocalizedValue = (localizedObject) => {
+    // Безпечна функція локалізації
+    const getLocalizedValue = useCallback((localizedObject) => {
+        // Перевірка на існування об'єкта та наявність перекладу
+        if (!localizedObject) return '';
         return localizedObject[currentLanguage] || localizedObject['de'] || '';
-    };
+    }, [currentLanguage]);
 
+    // Мемоїзація даних та фільтрації
+    const processedData = useMemo(() => {
+        // Фільтрація по категорії з безпечною перевіркою
+        const filteredData = category
+            ? rawData.filter((item) => item.category === category)
+            : rawData;
+
+        // Якщо немає записів - повертаємо порожній масив
+        if (filteredData.length === 0) return [];
+
+        const totalRecordsNeeded = 100 * recordsPerPage;
+
+        let extendedData = [...filteredData];
+        while (extendedData.length < totalRecordsNeeded) {
+            const randomIndex = Math.floor(Math.random() * filteredData.length);
+            extendedData.push(filteredData[randomIndex]);
+        }
+
+        return extendedData;
+    }, [category, recordsPerPage]);
+
+    // Оптимізований ефект для пагінації
     useEffect(() => {
-        const fetchRecords = () => {
-            const filteredData = category
-                ? data.filter((item) => item.category === category)
-                : data;
+        const indexOfLastRecord = currentPage * recordsPerPage;
+        const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+        const newRecords = processedData.slice(indexOfFirstRecord, indexOfLastRecord);
 
-            const totalRecordsNeeded = 100 * recordsPerPage;
-            const currentTotalRecords = filteredData.length;
+        setCurrentRecords(newRecords);
+        setTotalPages(processedData.length > 0 ? 100 : 1);
+    }, [currentPage, processedData, recordsPerPage]);
 
-            let extendedData = [...filteredData];
-            while (extendedData.length < totalRecordsNeeded) {
-                const randomIndex = Math.floor(Math.random() * filteredData.length);
-                extendedData.push(filteredData[randomIndex]);
-            }
-
-            const indexOfLastRecord = currentPage * recordsPerPage;
-            const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-            const newRecords = extendedData.slice(indexOfFirstRecord, indexOfLastRecord);
-
-            setCurrentRecords(newRecords);
-            setTotalPages(100);
-        };
-
-        fetchRecords();
-    }, [currentPage, category, recordsPerPage]);
-
+    // Скролінг та фокус
     useEffect(() => {
         if (blogListRef.current) {
             blogListRef.current.scrollIntoView({
@@ -72,50 +79,67 @@ const Blog = () => {
         }
     }, [page]);
 
-    const handlePageChange = (pageNumber) => {
-
+    // Оптимізована зміна сторінки
+    const handlePageChange = useCallback((pageNumber) => {
         if (category) {
             navigate(`/category/${category}/${pageNumber}${location?.search ? location?.search : ''}`);
         } else {
             navigate(`/${pageNumber}${location?.search ? location?.search : ''}`);
         }
-    };
+    }, [category, location, navigate]);
+
+    // Мемоїзований рендер елементів з безпечною перевіркою
+    const BlogItems = useMemo(() => {
+        return currentRecords.map((record, index) => {
+            // Безпечна перевірка наявності запису
+            if (!record) return null;
+
+            const randomMinutes = Math.floor(Math.random() * (29 - 3 + 1)) + 3;
+
+            return (
+                <div key={index} className="list-item" onClick={handleOpen}>
+                    <div className="image-placeholder">
+                        <img
+                            src={record?.photo || ''}
+                            alt="Blog image"
+                            loading="lazy"
+                        />
+                    </div>
+                    {record?.badge && (
+                        <div className="tags">
+                            <Tag type={record?.badge}/>
+                        </div>
+                    )}
+                    <div className="details">
+                        <p className="title">
+                            {getLocalizedValue(record?.title || {})}
+                        </p>
+                        <p className="description">
+                            {getLocalizedValue(record?.description || {})}
+                        </p>
+                        <div className="side">
+                            <p className="time">
+                                Today, {randomMinutes} min ago
+                                <span className="type_find">
+                                    {getLocalizedValue(record?.looking || {})}
+                                </span>
+                            </p>
+                            <p className="location">
+                                {getLocalizedValue(record?.location || {})}
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            );
+        }).filter(Boolean); // Видаляємо можливі null значення
+    }, [currentRecords, handleOpen, getLocalizedValue]);
 
     return (
-        <>
         <div>
-            {currentRecords?.length >= 1 && currentRecords[0] ?
+            {currentRecords.length > 0 ? (
                 <>
                     <div className="blog_list" ref={blogListRef} key={'blog_full'}>
-                        {currentRecords.map((record, index) => {
-                            const randomMinutes = Math.floor(Math.random() * (29 - 3 + 1)) + 3;
-
-                            return (
-                                <div key={index} className="list-item" onClick={handleOpen}>
-                                    <div className="image-placeholder">
-                                        <img src={record?.photo} alt="Blog image"/>
-                                    </div>
-                                    {record?.badge ?
-                                        <div className="tags">
-                                            <Tag type={record?.badge}/>
-                                        </div>
-                                        :
-                                        <></>
-                                    }
-                                    <div className="details">
-                                        <p className="title">{getLocalizedValue(record?.title)}</p>
-                                        <p className="description">{getLocalizedValue(record?.description)}</p>
-                                        <div className="side">
-                                            <p className="time">
-                                                Today, {randomMinutes} min ago
-                                                <span className="type_find">{getLocalizedValue(record?.looking)}</span>
-                                            </p>
-                                            <p className="location">{getLocalizedValue(record?.location)}</p>
-                                        </div>
-                                    </div>
-                                </div>
-                            );
-                        })}
+                        {BlogItems}
                     </div>
                     <Pagination
                         totalPages={Math.max(100, totalPages)}
@@ -123,14 +147,13 @@ const Blog = () => {
                         handlePageChange={handlePageChange}
                     />
                 </>
-                :
+            ) : (
                 <div className="blog_list" key={'blog_empty'}>
-                    <h4>{t('record_not_found')}</h4></div>
-            }
+                    <h4>{t('record_not_found')}</h4>
+                </div>
+            )}
         </div>
-
-        </>
     );
 };
 
-export default Blog;
+export default React.memo(Blog);
