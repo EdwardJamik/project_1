@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, {useState, useEffect, useCallback} from 'react';
 import { Swiper, SwiperSlide } from 'swiper/react';
 
 import 'swiper/css';
@@ -72,9 +72,9 @@ export default function TopSlider() {
     }, []);
 
 
-    const getLocalizedValue = (localizedObject) => {
-        return localizedObject[currentLanguage] || localizedObject['de'] || '';
-    };
+    const getLocalizedValue = useCallback((value) => {
+        return value[currentLanguage];
+    }, [currentLanguage]);
 
     return (
         <div className='top_slider'>
@@ -83,7 +83,7 @@ export default function TopSlider() {
                 spaceBetween={10}
                 slidesPerView={5}
                 loop={true}
-                loopAdditionalSlides={2}
+                loopAdditionalSlides={1}
                 autoplay={{
                     delay: 3000,
                     disableOnInteraction: false,

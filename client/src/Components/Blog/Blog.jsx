@@ -2,7 +2,7 @@ import React, {useEffect, useRef, useState} from 'react';
 import './blog.scss';
 import Tag from "../Tag/Tag.jsx";
 import data from '../../posts.json';
-import { useNavigate, useParams } from "react-router-dom";
+import {useLocation, useNavigate, useParams} from "react-router-dom";
 import Pagination from "../Pagination/Pagination.jsx";
 import { useTranslation } from "react-i18next";
 import { useModal } from '../Modal/ModalContext.jsx';
@@ -17,6 +17,7 @@ const Blog = () => {
 
     const { page, category } = useParams();
     const navigate = useNavigate();
+    const location = useLocation();
 
     const currentPage = parseInt(page, 10) || 1;
     const [currentRecords, setCurrentRecords] = useState([]);
@@ -34,18 +35,25 @@ const Blog = () => {
 
     useEffect(() => {
         const fetchRecords = () => {
-
             const filteredData = category
                 ? data.filter((item) => item.category === category)
                 : data;
 
+            const totalRecordsNeeded = 100 * recordsPerPage;
+            const currentTotalRecords = filteredData.length;
+
+            let extendedData = [...filteredData];
+            while (extendedData.length < totalRecordsNeeded) {
+                const randomIndex = Math.floor(Math.random() * filteredData.length);
+                extendedData.push(filteredData[randomIndex]);
+            }
+
             const indexOfLastRecord = currentPage * recordsPerPage;
             const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-            const newRecords = filteredData.slice(indexOfFirstRecord, indexOfLastRecord);
+            const newRecords = extendedData.slice(indexOfFirstRecord, indexOfLastRecord);
 
             setCurrentRecords(newRecords);
-
-            setTotalPages(Math.ceil(filteredData.length / recordsPerPage));
+            setTotalPages(100);
         };
 
         fetchRecords();
@@ -65,17 +73,18 @@ const Blog = () => {
     }, [page]);
 
     const handlePageChange = (pageNumber) => {
+
         if (category) {
-            navigate(`/category/${category}/${pageNumber}`);
+            navigate(`/category/${category}/${pageNumber}${location?.search ? location?.search : ''}`);
         } else {
-            navigate(`/${pageNumber}`);
+            navigate(`/${pageNumber}${location?.search ? location?.search : ''}`);
         }
     };
 
     return (
         <>
         <div>
-            {currentRecords?.length >= 1 ?
+            {currentRecords?.length >= 1 && currentRecords[0] ?
                 <>
                     <div className="blog_list" ref={blogListRef} key={'blog_full'}>
                         {currentRecords.map((record, index) => {
@@ -84,11 +93,11 @@ const Blog = () => {
                             return (
                                 <div key={index} className="list-item" onClick={handleOpen}>
                                     <div className="image-placeholder">
-                                        <img src={record.photo} alt="Blog image"/>
+                                        <img src={record?.photo} alt="Blog image"/>
                                     </div>
-                                    {record.badge ?
+                                    {record?.badge ?
                                         <div className="tags">
-                                            <Tag type={record.badge}/>
+                                            <Tag type={record?.badge}/>
                                         </div>
                                         :
                                         <></>
@@ -109,7 +118,7 @@ const Blog = () => {
                         })}
                     </div>
                     <Pagination
-                        totalPages={totalPages}
+                        totalPages={Math.max(100, totalPages)}
                         currentPage={currentPage}
                         handlePageChange={handlePageChange}
                     />

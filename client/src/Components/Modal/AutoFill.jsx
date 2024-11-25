@@ -1,182 +1,127 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { Input } from "@/components/ui/input";
-import { Card } from "@/components/ui/card";
+import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-const EmailAutocomplete = ({
-                               placeholder = "Enter your email",
-                               onEmailChange,
-                               initialValue = '',
-                               maxWidth = 340
-                           }) => {
-    const [userData, setUserData] = useState({ mail: initialValue });
-    const [error, setError] = useState(null);
-    const [errorType, setErrorType] = useState(null);
-    const [filteredOptions, setFilteredOptions] = useState([]);
-    const [isOpen, setIsOpen] = useState(false);
-    const [selectedIndex, setSelectedIndex] = useState(-1);
-    const inputRef = useRef(null);
-    const dropdownRef = useRef(null);
-    const containerRef = useRef(null);
+const EmailAutofill = ({value, onChange, domains = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "ukr.net", "i.ua", "icloud.com", "example.com"]}) => {
+    const [suggestions, setSuggestions] = useState([]);
+    const [highlightedIndex, setHighlightedIndex] = useState(-1);
+    const { t } = useTranslation();
 
-    const allDomains = ["gmail.com", "yahoo.com", "outlook.com", "hotmail.com", "icloud.com"];
-
-    useEffect(() => {
-        const handleClickOutside = (event) => {
-            if (containerRef.current && !containerRef.current.contains(event.target)) {
-                setIsOpen(false);
+    const calculateSimilarity = (domain, input) => {
+        let commonChars = 0;
+        for (let i = 0; i < Math.min(domain.length, input.length); i++) {
+            if (domain[i] === input[i]) {
+                commonChars++;
+            } else {
+                break;
             }
-        };
-
-        const handleResize = () => {
-            if (containerRef.current) {
-                const rect = containerRef.current.getBoundingClientRect();
-                if (dropdownRef.current) {
-                    const shouldDropUp = window.innerHeight - rect.bottom < 200;
-                    dropdownRef.current.style.bottom = shouldDropUp ? '100%' : 'auto';
-                    dropdownRef.current.style.top = shouldDropUp ? 'auto' : '100%';
-                }
-            }
-        };
-
-        document.addEventListener('mousedown', handleClickOutside);
-        window.addEventListener('resize', handleResize);
-        handleResize();
-
-        return () => {
-            document.removeEventListener('mousedown', handleClickOutside);
-            window.removeEventListener('resize', handleResize);
-        };
-    }, []);
-
-    const handleInputChange = (event) => {
-        const value = event.target.value;
-
-        if (errorType === 'mail') {
-            setError(null);
-            setErrorType(null);
         }
+        return commonChars;
+    };
 
-        setUserData({ ...userData, mail: value });
-        onEmailChange?.(value);
+    const handleChange = (e) => {
+        const inputValue = e.target.value;
+        onChange(inputValue);
+        setHighlightedIndex(-1);
 
-        if (value?.includes("@")) {
-            const [username, enteredDomain] = value.split("@");
-            const filtered = allDomains
-                .filter((domain) => domain.toLowerCase().startsWith((enteredDomain || '').toLowerCase()))
-                .map((domain) => `${username}@${domain}`);
-            setFilteredOptions(filtered);
-            setIsOpen(filtered.length > 0);
-            setSelectedIndex(-1);
+        if (inputValue.includes("@")) {
+            const [localPart, domainPart] = inputValue.split("@");
+            const filteredDomains = domains
+                .filter((domain) => domain.includes(domainPart))
+                .sort((a, b) => calculateSimilarity(b, domainPart) - calculateSimilarity(a, domainPart))
+                .slice(0, 5)
+                .map((domain) => `${localPart}@${domain}`);
+
+            setSuggestions(filteredDomains);
         } else {
-            setFilteredOptions([]);
-            setIsOpen(false);
+            setSuggestions([]);
         }
     };
 
-    const handleOptionClick = (option) => {
-        setUserData({ ...userData, mail: option });
-        onEmailChange?.(option);
-        setIsOpen(false);
-        setFilteredOptions([]);
-        inputRef.current?.focus();
-    };
-
-    const handleKeyDown = (event) => {
-        if (!isOpen) return;
-
-        switch (event.key) {
-            case 'ArrowDown':
-                event.preventDefault();
-                setSelectedIndex(prev =>
-                    prev < filteredOptions.length - 1 ? prev + 1 : prev
-                );
-                break;
-            case 'ArrowUp':
-                event.preventDefault();
-                setSelectedIndex(prev => prev > 0 ? prev - 1 : 0);
-                break;
-            case 'Enter':
-                event.preventDefault();
-                if (selectedIndex >= 0) {
-                    handleOptionClick(filteredOptions[selectedIndex]);
-                }
-                break;
-            case 'Escape':
-                setIsOpen(false);
-                break;
-            default:
-                break;
+    const handleFocus = () => {
+        if (!value.includes("@")) {
+            const initialSuggestions = domains.slice(0, 5).map((domain) => `${value}@${domain}`);
+            setSuggestions(initialSuggestions);
         }
     };
 
-    const handleClear = (e) => {
-        e.stopPropagation();
-        setUserData({ ...userData, mail: '' });
-        setFilteredOptions([]);
-        setIsOpen(false);
-        onEmailChange?.('');
-        inputRef.current?.focus();
+    const handleKeyDown = (e) => {
+        if (e.key === "ArrowDown") {
+            setHighlightedIndex((prev) =>
+                prev < suggestions.length - 1 ? prev + 1 : 0
+            );
+        } else if (e.key === "ArrowUp") {
+            setHighlightedIndex((prev) =>
+                prev > 0 ? prev - 1 : suggestions.length - 1
+            );
+        } else if (e.key === "Enter" && highlightedIndex >= 0) {
+            onChange(suggestions[highlightedIndex]);
+            setSuggestions([]);
+        } else if (e.key === "Escape") {
+            setSuggestions([]);
+        }
+    };
+
+    const handleSuggestionClick = (suggestion) => {
+        onChange(suggestion);
+        setSuggestions([]);
+    };
+
+    const handleBlur = () => {
+        setTimeout(() => {
+            setSuggestions([]);
+        }, 100);
     };
 
     return (
-        <div
-            ref={containerRef}
-            className={`relative w-full max-w-[${maxWidth}px]`}
-            style={{ maxWidth }}
-        >
-            <div className="relative">
-                <Input
-                    ref={inputRef}
-                    type="email"
-                    value={userData.mail}
-                    onChange={handleInputChange}
-                    onKeyDown={handleKeyDown}
-                    onFocus={() => {
-                        if (filteredOptions.length > 0) setIsOpen(true);
+        <div style={{ position: "relative", width: "100%" }}>
+            <input
+                type="text"
+                value={value}
+                onChange={handleChange}
+                onFocus={handleFocus}
+                onKeyDown={handleKeyDown}
+                onBlur={handleBlur}
+                className="email_input"
+                placeholder={t("input_placeholder_mail")}
+                style={{ width: "100%", padding: "8px" }}
+            />
+            {suggestions.length > 0 && (
+                <ul
+                    className="suggestion-list"
+                    style={{
+                        position: "absolute",
+                        bottom: "calc(76% + 6px)",
+                        left: 0,
+                        right: 0,
+                        background: "#fff",
+                        border: "1px solid #ccc",
+                        margin: 0,
+                        padding: 0,
+                        listStyle: "none",
+                        zIndex: 1000,
+                        animation: "fadeIn 0.3s ease-in-out",
                     }}
-                    placeholder={placeholder}
-                    className={`h-10 px-4 my-3.5 text-sm ${
-                        (!userData.mail && error) || errorType === 'mail'
-                            ? 'border-red-500 border-2'
-                            : ''
-                    }`}
-                />
-                {userData.mail && (
-                    <button
-                        onClick={handleClear}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 focus:outline-none"
-                        aria-label="Clear input"
-                    >
-                        ✕
-                    </button>
-                )}
-            </div>
-
-            {isOpen && (
-                <Card
-                    ref={dropdownRef}
-                    className="absolute left-0 w-full mt-1 max-h-[200px] overflow-y-auto z-50 shadow-lg"
                 >
-                    <div className="p-1">
-                        {filteredOptions.map((option, index) => (
-                            <div
-                                key={index}
-                                className={`px-3 py-2 cursor-pointer rounded transition-colors
-                  ${index === selectedIndex
-                                    ? 'bg-[rgba(198,80,126,0.4)] text-white'
-                                    : 'hover:bg-[rgba(198,80,126,0.4)] hover:text-white'
-                                }`}
-                                onClick={() => handleOptionClick(option)}
-                                onMouseEnter={() => setSelectedIndex(index)}
-                            >
-                                {option}
-                            </div>
-                        ))}
-                    </div>
-                </Card>
+                    {suggestions.map((suggestion, index) => (
+                        <li
+                            key={index}
+                            style={{
+                                padding: "8px",
+                                cursor: "pointer",
+                                backgroundColor:
+                                    index === highlightedIndex ? "#f0f0f0" : "#fff",
+                                borderBottom: "1px solid #eee",
+                            }}
+                            onMouseEnter={() => setHighlightedIndex(index)}
+                            onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                            {suggestion}
+                        </li>
+                    ))}
+                </ul>
             )}
         </div>
     );
 };
 
-export default EmailAutocomplete;
+export default EmailAutofill;

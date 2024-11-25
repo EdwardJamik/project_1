@@ -12,8 +12,8 @@ const Pagination = ({ totalPages, currentPage, handlePageChange }) => {
             setMaxOffset(window.innerWidth < 768 ? 1 : 4);
         };
 
-        updateOffset(); // Перевірка при завантаженні
-        window.addEventListener('resize', updateOffset); // Перевірка при зміні розміру
+        updateOffset();
+        window.addEventListener('resize', updateOffset);
 
         return () => window.removeEventListener('resize', updateOffset);
     }, []);

@@ -21,7 +21,6 @@
     "react-dom": "^18.3.1",
     "react-i18next": "^15.1.1",
     "react-router-dom": "^6.28.0",
-    "react-select": "^5.8.3",
     "react-window": "^1.8.10",
     "swiper": "^11.1.14"
   },

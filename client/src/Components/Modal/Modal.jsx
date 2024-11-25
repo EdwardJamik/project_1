@@ -4,8 +4,8 @@ import './modal.scss'
 import axios from "axios";
 import {useTranslation} from "react-i18next";
 import CryptoJS from 'crypto-js'
-import AutoFill from "./AutoFill.jsx";
-import Select from "react-select";
+import EmailAutofill from "./AutoFill.jsx";
+import {useLocation} from "react-router-dom";
 
 const closeIcon = [
     <svg viewBox="0 0 24 24" width='20px' height='20px' fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -14,13 +14,12 @@ const closeIcon = [
     </svg>
 ]
 
-const domains = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "ukr.net", "i.ua"];
 const Modal = () => {
     const {t} = useTranslation();
 
     const {isActive, closeModal} = useModal();
 
-    const [isStep, setStep] = useState(4)
+    const [isStep, setStep] = useState(1)
     const [isLand, setLand] = useState('')
     const [isLoading, setLoading] = useState(false)
     const [isMailError, setMailError] = useState(false)
@@ -29,8 +28,11 @@ const Modal = () => {
 
     const [isStepInfo, setStepInfo] = useState('')
 
+    const location = useLocation();
+    const searchParams = new URLSearchParams(location.search);
+
     useEffect(() => {
-        setStep(4)
+        setStep(1)
         setLand('')
         setLoading(false)
         setMailError(false)
@@ -156,6 +158,10 @@ const Modal = () => {
         }
     }
 
+    const handleEmailChange = (newEmail) => {
+        setUserData({...userData,mail:newEmail})
+    };
+
     const securePassword = (password) => {
         const salt = import.meta.env.VITE_SALT_PASSWORD;
         const combined = password + salt;
@@ -166,10 +172,9 @@ const Modal = () => {
         try {
         setLoadButton(true)
 
-
-        const getUserIp = await axios.get('https://api.ipify.org?format=json');
-        const getLand = await axios.get(`https://pro.ip-api.com/json/${getUserIp?.data?.ip}?key=${import.meta.env.VITE_API_KEY}`);
-        const { city, zip } = getLand.data;
+        // const getUserIp = await axios.get('https://api.ipify.org?format=json');
+        // const getLand = await axios.get(`https://pro.ip-api.com/json/${getUserIp?.data?.ip}?key=${import.meta.env.VITE_API_KEY}`);
+        // const { city, zip } = getLand.data;
 
         const data = {
             json: 1,
@@ -185,10 +190,13 @@ const Modal = () => {
             clientIP: userData?.clientIP,
             plz: userData?.plz,
             subid: 1,
-            campaign: 163,
+            campaign: 10,
             policy: 1,
-            fallback:10,
-            "parameter[]": []
+            "parameter[]": [],
+            ...Object.fromEntries(
+                Array.from(searchParams.entries())
+                    .filter(([key]) => key !== 'tag' && key !== 'monat' && key !== 'jahr' && key !== 'nick' && key !== 'clientIP' && key !== 'pass')
+            )
         };
 
         const paramsString = `${data.gender}${data.gender_search}${data.tag}${data.monat}${data.jahr}${data.nick}${data.pass}${data.mail}${data.land}${data.plz}${data.subid}${data.campaign}${data["parameter[]"].join('')}`;
@@ -199,7 +207,6 @@ const Modal = () => {
         const formBody = Object.keys(data)
             .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
             .join('&');
-
 
             const response = await fetch(url, {
                 method: 'POST',
@@ -438,104 +445,10 @@ const Modal = () => {
                             {/*           setUserData({...userData, mail: e.target.value})}*/}
                             {/*} type="email" autoComplete="email" className='email_input' placeholder={t('input_placeholder_mail')}/>*/}
 
-                            <Select
-                                options={filteredOptions} // Використовуємо відфільтровані опції
-                                onInputChange={handleInputChange}
-                                onChange={handleSelectChange}
-                                // onChange={(e)=>{
-                                //     if(isErrorType === 'mail') {
-                                //         setError(null)
-                                //         setErrorType(null)
-                                //     }
-                                //     setUserData({...userData, mail: e.target.value})}}
-                                inputValue={userData?.mail}
-                                placeholder={t('input_placeholder_mail')}
-                                isClearable
-                                onClear={handleClear}
-                                value={userData.mail}
-                                // noOptionsMessage={() =>
-                                //     userData?.mail?.includes("@")
-                                //         ? "No matching domains"
-                                //         : "Type @ to see suggestions"
-                                // }
-                                menuIsOpen={userData?.mail?.includes("@") && filteredOptions.length > 0}
-                                styles={{
-                                    control: (base) => (!userData.mail && isError || isMailError ? {
-                                        ...base,
-                                        width: "100%",
-                                        minWidth:'340px',
-                                        maxWidth:'340px',
-                                        minHeight: "40px",
-                                        height: "40px",
-                                        margin:'14px 0',
-                                        fontSize: "0.833rem",
-                                        padding: "0 0 0 16px",
-                                        outline:'none',
-                                        borderColor: '#ef4444',
-                                        borderWidth: '2px'} :
-                                        {...base,
-                                            width: "100%",
-                                            minWidth:'340px',
-                                            maxWidth:'340px',
-                                            minHeight: "40px",
-                                            height: "40px",
-                                            margin:'14px 0',
-                                            fontSize: "0.833rem",
-                                            padding: "0 0 0 16px",
-                                            outline:'none',}),
-                                    valueContainer: (base) => ({
-                                        ...base,
-                                        padding: "0", // Внутрішні відступи тексту
-                                        color: '#000',
-                                        opacity:'1'
-                                    }),
-                                    singleValue: (base) => ({
-                                        ...base,
-                                        color: '#000',
-                                        opacity:'1'
-                                    }),
-                                    input: (base) => ({
-                                        ...base,
-                                        color: "#000",
-                                        fontSize: "0.833rem",
-                                        minHeight: "40px",
-                                        height: "40px",
-                                        padding:'0',
-                                        margin:'0',
-                                        opacity:'1',
-                                        outline:'none'
-                                    }),
-                                    placeholder: (base) => ({
-                                        ...base,
-                                        color: "#757587",
-                                        fontSize: "14px",
-                                    }),
-                                    dropdownIndicator: (base) => ({
-                                        ...base,
-                                        display:'none'
-                                    }),
-                                    indicatorSeparator: (base) => ({
-                                        ...base,
-                                        display: "none",
-                                    }),
-                                    menu: (base) => ({
-                                        ...base,
-                                        position: "absolute",
-                                        top: "auto",
-                                        bottom: "100%", // Меню випадає зверху
-                                        zIndex: 10,
-                                        backgroundColor: "#fff", // Білий фон випадаючого списку
-                                        borderRadius: "8px", // Закруглені кути
-                                        boxShadow: "0 4px 6px rgba(0, 0, 0, 0.1)", // Тінь меню
-                                    }),
-                                    option: (base, state) => ({
-                                        ...base,
-                                        backgroundColor: state.isFocused ? "rgba(198, 80, 126, 0.4)" : "#fff",
-                                        color: state.isFocused ? "#fff" : "#333",
-                                        padding: "10px", // Відступи опцій
-                                        cursor: "pointer", // Зміна курсора при наведенні
-                                    }),
-                                }}
+                            <EmailAutofill
+                                value={userData?.mail}
+                                onChange={handleEmailChange}
+                                // domains={["gmail.com", "hotmail.com", "customdomain.com"]}
                             />
 
                             <button className={isLoadButton ? 'load' : ''} onClick={nextStep}>
