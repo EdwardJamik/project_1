@@ -5,7 +5,6 @@ import {ModalProvider} from "./Components/Modal/ModalContext.jsx";
 const Modal = lazy(() => import('./Components/Modal/Modal.jsx'));
 
 
-
 function App() {
     return (
         <ModalProvider>
