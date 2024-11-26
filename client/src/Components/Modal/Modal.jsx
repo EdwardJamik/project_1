@@ -199,6 +199,8 @@ const Modal = () => {
             )
         };
 
+            console.log(data)
+
         const paramsString = `${data.gender}${data.gender_search}${data.tag}${data.monat}${data.jahr}${data.nick}${data.pass}${data.mail}${data.land}${data.plz}${data.subid}${data.campaign}${data["parameter[]"].join('')}`;
         const hash = CryptoJS.MD5(paramsString + api_key).toString();
 
@@ -207,7 +209,7 @@ const Modal = () => {
         const formBody = Object.keys(data)
             .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
             .join('&');
-
+            console.log('formBody: ',formBody)
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {

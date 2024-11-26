@@ -6,7 +6,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Pagination from "../Pagination/Pagination.jsx";
 import { useTranslation } from "react-i18next";
 import { useModal } from '../Modal/ModalContext.jsx';
-import {LazyImage} from "../Image/Image.jsx";
+import { LazyImage } from "../Image/Image.jsx";
 
 const Blog = () => {
     const { i18n, t } = useTranslation();
@@ -21,6 +21,7 @@ const Blog = () => {
     const currentPage = parseInt(page, 10) || 1;
     const [currentRecords, setCurrentRecords] = useState([]);
     const [totalPages, setTotalPages] = useState(1);
+    const [loading, setLoading] = useState(false);
     const recordsPerPage = 9;
 
     const { openModal } = useModal();
@@ -52,16 +53,22 @@ const Blog = () => {
     }, [category, recordsPerPage]);
 
     useEffect(() => {
+        setLoading(true);
         const indexOfLastRecord = currentPage * recordsPerPage;
         const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
         const newRecords = processedData.slice(indexOfFirstRecord, indexOfLastRecord);
 
-        setCurrentRecords(newRecords);
-        setTotalPages(processedData.length > 0 ? 100 : 1);
+        const timer = setTimeout(() => {
+            setCurrentRecords(newRecords);
+            setLoading(false);
+            setTotalPages(processedData.length > 0 ? 100 : 1);
+        }, 1500);
+
+        return () => clearTimeout(timer);
     }, [currentPage, processedData, recordsPerPage]);
 
     useEffect(() => {
-        if (blogListRef.current) {
+        if (!loading && blogListRef.current) {
             blogListRef.current.scrollIntoView({
                 behavior: 'smooth',
                 block: 'start'
@@ -71,7 +78,7 @@ const Blog = () => {
         if (pagination) {
             pagination.blur();
         }
-    }, [page]);
+    }, [page, loading]);
 
     const handlePageChange = useCallback((pageNumber) => {
         if (category) {
@@ -91,15 +98,10 @@ const Blog = () => {
                 <div key={index} className="list-item" onClick={handleOpen}>
                     <div className="image-placeholder">
                         <LazyImage src={record?.photo || ''} alt={getLocalizedValue(record?.title || {})} />
-                        {/*<img*/}
-                        {/*    src={record?.photo || ''}*/}
-                        {/*    alt="Blog image"*/}
-                        {/*    loading="lazy"*/}
-                        {/*/>*/}
                     </div>
                     {record?.badge && (
                         <div className="tags">
-                            <Tag type={record?.badge}/>
+                            <Tag type={record?.badge} />
                         </div>
                     )}
                     <div className="details">
@@ -128,7 +130,11 @@ const Blog = () => {
 
     return (
         <div>
-            {currentRecords.length > 0 ? (
+            {loading ? (
+                <div className="loading-spinner">
+                    <div className="spinner"></div>
+                </div>
+            ) : currentRecords.length > 0 ? (
                 <>
                     <div className="blog_list" ref={blogListRef} key={'blog_full'}>
                         {BlogItems}
