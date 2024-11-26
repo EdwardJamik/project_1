@@ -18,6 +18,7 @@ import { useTranslation } from "react-i18next";
 import { useModal } from "../Modal/ModalContext.jsx";
 import { Navigation, Autoplay } from 'swiper/modules';
 import axios from "axios";
+import {LazyImage} from "../Image/Image.jsx";
 
 const NavigationIcons = {
     Right: () => (
@@ -132,11 +133,12 @@ export default function TopSlider() {
                             <SwiperSlide key={index}>
                                 <div className="card" onClick={handleOpen}>
                                     <div className="image-placeholder">
-                                        <img
-                                            src={record?.photo}
-                                            alt=""
-                                            loading="lazy"
-                                        />
+                                        <LazyImage src={record?.photo}/>
+                                        {/*<img*/}
+                                        {/*    src={record?.photo}*/}
+                                        {/*    alt=""*/}
+                                        {/*    loading="lazy"*/}
+                                        {/*/>*/}
                                     </div>
                                     {record?.badge && (
                                         <div className="tags">
