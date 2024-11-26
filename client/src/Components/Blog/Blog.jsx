@@ -6,7 +6,6 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Pagination from "../Pagination/Pagination.jsx";
 import { useTranslation } from "react-i18next";
 import { useModal } from '../Modal/ModalContext.jsx';
-import { LazyImage } from "../Image/Image.jsx";
 
 const Blog = () => {
     const { i18n, t } = useTranslation();
