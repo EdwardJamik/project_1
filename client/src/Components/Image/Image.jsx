@@ -6,10 +6,14 @@ export const LazyImage = ({src, alt}) => {
 
     const handleIntersection = (entries) => {
         if (entries[0].isIntersecting) {
-            imageRef.current.src = src;
+
+            const img = new Image();
+            img.src = src;
+            img.onload = () => {
+                imageRef.current.src = img.src;
+            };
         }
     };
-
 
     useEffect(() => {
         const observer = new IntersectionObserver(handleIntersection, {
