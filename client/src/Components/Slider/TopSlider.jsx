@@ -133,7 +133,7 @@ export default function TopSlider() {
                             <SwiperSlide key={index}>
                                 <div className="card" onClick={handleOpen}>
                                     <div className="image-placeholder">
-                                        <LazyImage src={record?.photo}/>
+                                        <LazyImage src={record?.photo} alt={getLocalizedValue(record?.title)}/>
                                         {/*<img*/}
                                         {/*    src={record?.photo}*/}
                                         {/*    alt=""*/}
