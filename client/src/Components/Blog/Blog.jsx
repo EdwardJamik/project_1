@@ -6,6 +6,7 @@ import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Pagination from "../Pagination/Pagination.jsx";
 import { useTranslation } from "react-i18next";
 import { useModal } from '../Modal/ModalContext.jsx';
+import {LazyImage} from "../Image/Image.jsx";
 
 const Blog = () => {
     const { i18n, t } = useTranslation();
@@ -89,11 +90,12 @@ const Blog = () => {
             return (
                 <div key={index} className="list-item" onClick={handleOpen}>
                     <div className="image-placeholder">
-                        <img
-                            src={record?.photo || ''}
-                            alt="Blog image"
-                            loading="lazy"
-                        />
+                        <LazyImage src={record?.photo || ''} alt={getLocalizedValue(record?.title || {})} />
+                        {/*<img*/}
+                        {/*    src={record?.photo || ''}*/}
+                        {/*    alt="Blog image"*/}
+                        {/*    loading="lazy"*/}
+                        {/*/>*/}
                     </div>
                     {record?.badge && (
                         <div className="tags">
