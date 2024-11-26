@@ -6,17 +6,15 @@ export const LazyImage = ({src, alt}) => {
 
     const handleIntersection = (entries) => {
         if (entries[0].isIntersecting) {
-
-            const img = new Image();
-            img.src = src;
-            img.onload = () => {
-                imageRef.current.src = img.src;
-            };
+            imageRef.current.src = src;
         }
     };
 
+
     useEffect(() => {
-        const observer = new IntersectionObserver(handleIntersection);
+        const observer = new IntersectionObserver(handleIntersection, {
+            rootMargin: '100px' // Начать загрузку, когда изображение будет в 100px от viewport
+        });
         observer.observe(imageRef.current);
         return () => observer.disconnect();
     }, []);
