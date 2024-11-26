@@ -64,13 +64,22 @@ export default function TopSlider() {
                     fetchLocation()
                 ]);
 
+                const initialData = getRandomItems(data, 10);
                 setState(prev => ({
                     ...prev,
-                    randomItems: getRandomItems(data, 10),
+                    randomItems: [],
                     locationData: locationResponse.status === 'fulfilled'
                         ? locationResponse.value
                         : null
                 }));
+
+                for (let i = 0; i < initialData.length; i++) {
+                    await new Promise(resolve => setTimeout(resolve, 0));
+                    setState(prev => ({
+                        ...prev,
+                        randomItems: [...prev.randomItems, initialData[i]]
+                    }));
+                }
             } catch (error) {
                 console.error('Data fetching error:', error);
             }
@@ -96,7 +105,7 @@ export default function TopSlider() {
         spaceBetween: 10,
         slidesPerView: 5,
         loop: true,
-        loopAdditionalSlides: 1,
+        loopAdditionalSlides: 5,
         autoplay: {
             delay: 3000,
             disableOnInteraction: false,

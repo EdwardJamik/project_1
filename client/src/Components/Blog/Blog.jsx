@@ -19,7 +19,7 @@ const Blog = () => {
     const location = useLocation();
 
     const currentPage = parseInt(page, 10) || 1;
-    const [currentRecords, setCurrentRecords] = useState([]);
+    const [currentRecords, setCurrentRecords] = useState(rawData); // Миттєве завантаження даних
     const [totalPages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const recordsPerPage = 9;
@@ -34,6 +34,7 @@ const Blog = () => {
         return localizedObject[currentLanguage] || localizedObject['de'] || '';
     }, [currentLanguage]);
 
+    // Оптимізований processedData
     const processedData = useMemo(() => {
         const filteredData = category
             ? rawData.filter((item) => item.category === category)
@@ -53,38 +54,31 @@ const Blog = () => {
     }, [category, recordsPerPage]);
 
     useEffect(() => {
-        setLoading(true);
         const indexOfLastRecord = currentPage * recordsPerPage;
         const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
         const newRecords = processedData.slice(indexOfFirstRecord, indexOfLastRecord);
 
-        const timer = setTimeout(() => {
-            setCurrentRecords(newRecords);
-            setLoading(false);
-            setTotalPages(processedData.length > 0 ? 100 : 1);
-        }, 1500);
-
-        return () => clearTimeout(timer);
-    }, [currentPage, processedData, recordsPerPage]);
-
-    useEffect(() => {
-        if (!loading && blogListRef.current) {
-            blogListRef.current.scrollIntoView({
-                behavior: 'smooth',
-                block: 'start'
-            });
-        }
-        const pagination = document.getElementById('pagination');
-        if (pagination) {
-            pagination.blur();
-        }
-    }, [page, loading]);
+        setCurrentRecords(newRecords);
+        setTotalPages(Math.ceil(processedData.length / recordsPerPage));
+    }, [currentPage, processedData]);
 
     const handlePageChange = useCallback((pageNumber) => {
         if (category) {
             navigate(`/category/${category}/${pageNumber}${location?.search ? location?.search : ''}`);
         } else {
             navigate(`/${pageNumber}${location?.search ? location?.search : ''}`);
+        }
+
+        if (blogListRef.current) {
+            blogListRef.current.scrollIntoView({
+                behavior: 'smooth',
+                block: 'start'
+            });
+        }
+        const pagination = document.getElementById('pagination');
+
+        if (pagination) {
+            pagination.blur();
         }
     }, [category, location, navigate]);
 
@@ -130,11 +124,7 @@ const Blog = () => {
 
     return (
         <div>
-            {loading ? (
-                <div className="loading-spinner">
-                    <div className="spinner"></div>
-                </div>
-            ) : currentRecords.length > 0 ? (
+            {currentRecords.length > 0 ? (
                 <>
                     <div className="blog_list" ref={blogListRef} key={'blog_full'}>
                         {BlogItems}

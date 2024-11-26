@@ -1,8 +1,10 @@
 import React, { Suspense, lazy } from 'react';
 import {Route, Routes} from "react-router-dom";
-const Home = lazy(() => import('./Home.jsx'));
+// const Home = lazy(() => import('./Home.jsx'));
 import {ModalProvider} from "./Components/Modal/ModalContext.jsx";
-const Modal = lazy(() => import('./Components/Modal/Modal.jsx'));
+import Home from "./Home.jsx";
+import Modal from "./Components/Modal/Modal.jsx";
+// const Modal = lazy(() => import('./Components/Modal/Modal.jsx'));
 
 
 function App() {
