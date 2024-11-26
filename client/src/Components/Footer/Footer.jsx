@@ -14,12 +14,10 @@ const Footer = () => {
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        // Перевірка на мобільний пристрій
         const checkDevice = () => {
-            setIsMobile(window.innerWidth <= 768); // Встановлюємо поріг для мобільних пристроїв
+            setIsMobile(window.innerWidth <= 768);
         };
 
-        // Викликаємо перевірку при першому рендерингу та при зміні розміру вікна
         checkDevice();
         window.addEventListener('resize', checkDevice);
 
@@ -27,10 +25,6 @@ const Footer = () => {
             window.removeEventListener('resize', checkDevice);
         };
     }, []);
-
-    // const openPopup = (url) => {
-    //     window.open(url, 'popup', 'width=450,height=500,scrollbars=yes,resizable=yes');
-    // };
 
     const openLink = (url) => {
         if (isMobile) {
