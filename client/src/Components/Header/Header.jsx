@@ -63,7 +63,7 @@ const Header = () => {
                 <div className="logo" onClick={handleOpen}><img src={logo} alt="Logo"/></div>
                 <div className="search_content">
                     <input type="text" placeholder="Suchen" className="search-input" onClick={handleOpen}/>
-                    <button className="create-ad-btn" onClick={handleOpen}>
+                    <button className="create-ad-btn top" onClick={handleOpen}>
                         <span className='icon'>{adIcon}</span>
                         Gratis Anzeige erstellen
                     </button>
