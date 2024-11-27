@@ -17,7 +17,7 @@ export const LazyImage = ({src, alt}) => {
 
     useEffect(() => {
         const observer = new IntersectionObserver(handleIntersection, {
-            rootMargin: '100px' // Начать загрузку, когда изображение будет в 100px от viewport
+            rootMargin: '100px'
         });
         observer.observe(imageRef.current);
         return () => observer.disconnect();

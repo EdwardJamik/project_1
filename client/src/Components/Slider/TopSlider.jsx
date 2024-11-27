@@ -18,7 +18,6 @@ import { useTranslation } from "react-i18next";
 import { useModal } from "../Modal/ModalContext.jsx";
 import { Navigation, Autoplay } from 'swiper/modules';
 import axios from "axios";
-import {LazyImage} from "../Image/Image.jsx";
 
 const NavigationIcons = {
     Right: () => (
@@ -92,7 +91,7 @@ export default function TopSlider() {
         try {
             const { data: ipData } = await axios.get('https://api.ipify.org?format=json');
             const { data: locationData } = await axios.get(
-                `https://pro.ip-api.com/json/${ipData?.ip}?key=${import.meta.env.VITE_API_KEY}`
+                `${import.meta.env.VITE_GET_IP_API_URL}${ipData?.ip}?key=${import.meta.env.VITE_API_KEY}`
             );
             return { city: locationData.city, zip: locationData.zip };
         } catch (err) {

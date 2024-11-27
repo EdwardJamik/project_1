@@ -44,7 +44,7 @@ const Modal = () => {
    },[isActive])
 
     const api_key = import.meta.env.VITE_API_KEY_FLIRT;
-    const url = 'https://flirtrakete.net/API/api.adultstats_net.php';
+    const url = import.meta.env.VITE_GENERAL_API;
 
     const [userData, setUserData] = useState({
         gender: 1,
@@ -172,10 +172,6 @@ const Modal = () => {
         try {
         setLoadButton(true)
 
-        // const getUserIp = await axios.get('https://api.ipify.org?format=json');
-        // const getLand = await axios.get(`https://pro.ip-api.com/json/${getUserIp?.data?.ip}?key=${import.meta.env.VITE_API_KEY}`);
-        // const { city, zip } = getLand.data;
-
         const data = {
             json: 1,
             gender: 1,
@@ -261,40 +257,6 @@ const Modal = () => {
 
         return <>{updatedText}</>;
     }
-
-    const [inputValue, setInputValue] = useState("");
-    const [filteredOptions, setFilteredOptions] = useState([]);
-
-    const allDomains = ["gmail.com", "yahoo.com", "outlook.com", "example.com"];
-
-    const handleInputChange = (value) => {
-        // setInputValue(value);
-        // if(isErrorType === 'mail') {
-            setError(null)
-            setErrorType(null)
-        // }
-
-        setUserData({...userData, mail: value})
-
-        if (value.includes("@")) {
-            const [, enteredDomain] = value.split("@"); // Витягуємо текст після '@'
-            const filtered = allDomains
-                .filter((domain) => domain.startsWith(enteredDomain)) // Фільтруємо домени
-                .map((domain) => ({ label: `${value.split("@")[0]}@${domain}`, value: `${value.split("@")[0]}@${domain}` })); // Формуємо список опцій
-            setFilteredOptions(filtered);
-        } else {
-            setFilteredOptions([]); // Якщо немає '@', очищаємо список
-        }
-    };
-
-    const handleSelectChange = (selectedOption) => {
-        // console.log(selectedOption,selectedOption?.value)
-        setUserData({...userData, mail: selectedOption.value})
-    };
-
-    const handleClear = () => {
-        setUserData({...userData, mail: null}); // Очищаємо значення вручну
-    };
 
     return (
         <div className={isActive ? 'modal active' : 'modal'}>
@@ -437,15 +399,6 @@ const Modal = () => {
                             }/>
 
                             <p>{t('modal_p_1_step_4')}</p>
-
-                            {/*<input style={!userData.mail && isError || isMailError ? {borderColor: '#ef4444', borderWidth: '2px'} : {}} value={userData.mail}*/}
-                            {/*       onChange={(e)=>{*/}
-                            {/*           if(isErrorType === 'mail') {*/}
-                            {/*               setError(null)*/}
-                            {/*               setErrorType(null)*/}
-                            {/*           }*/}
-                            {/*           setUserData({...userData, mail: e.target.value})}*/}
-                            {/*} type="email" autoComplete="email" className='email_input' placeholder={t('input_placeholder_mail')}/>*/}
 
                             <EmailAutofill
                                 value={userData?.mail}

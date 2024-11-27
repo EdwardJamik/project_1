@@ -157,7 +157,6 @@
             transition: transform 0.3s ease-in-out;
 
             &.pulse {
-              //animation: pulse 1s infinite;
               &:after {
                 content: '1';
                 display: flex;

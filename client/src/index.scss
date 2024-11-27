@@ -125,9 +125,6 @@ p{
 }
 
 
-
-
-
 .age-warning {
   background-color: yellow;
   color: white;
@@ -146,27 +143,11 @@ p{
   margin-left: 1.4rem;
 }
 
-section {
-  //background-color: white;
-  //padding: 20px;
-  //box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  //margin-bottom: 20px;
-}
-
 .grid {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 20px;
 }
-
-
-
-//
-//.tags {
-//  display: flex;
-//  gap: 5px;
-//}
-
 
 .pushup {
   background-color: red;
@@ -179,21 +160,6 @@ section {
 .new {
   background-color: blue;
 }
-
-//.title {
-//  font-weight: bold;
-//}
-
-//.description {
-//  font-size: 14px;
-//  color: #555;
-//}
-
-//.time,
-//.location {
-//  font-size: 12px;
-//  color: #777;
-//}
 
 .list-item {
   display: flex;
