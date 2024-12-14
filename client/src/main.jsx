@@ -4,12 +4,12 @@ import { BrowserRouter } from 'react-router-dom';
 import App from './App.jsx'
 
 import './index.scss'
-
-const root = ReactDOM.createRoot(document.getElementById('root'));
 import './i18n';
 
+const root = ReactDOM.createRoot(document.getElementById('root'));
+
 root.render(
-    <BrowserRouter>
+    <BrowserRouter basename="/test">
         <App />
     </BrowserRouter>
 );

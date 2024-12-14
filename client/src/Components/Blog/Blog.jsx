@@ -1,7 +1,6 @@
 import React, { useEffect, useRef, useState, useMemo, useCallback } from 'react';
 import './blog.scss';
 import Tag from "../Tag/Tag.jsx";
-import rawData from '../../posts.json';
 import { useLocation, useNavigate, useParams } from "react-router-dom";
 import Pagination from "../Pagination/Pagination.jsx";
 import { useTranslation } from "react-i18next";
@@ -11,16 +10,43 @@ const Blog = () => {
     const { i18n, t } = useTranslation();
     const currentLanguage = i18n.language;
 
+    const basePath = window.location.pathname.split('/').slice(0, -1).join('/') || '/';
+
     const blogListRef = useRef(null);
+
+    const [rawData, setData] = useState(() => {
+        // Attempt to retrieve data from localStorage first
+        const savedData = localStorage.getItem('blogPosts');
+        return savedData ? JSON.parse(savedData) : [];
+    });
+
+    const [isLoading, setIsLoading] = useState(rawData.length === 0);
+
+    useEffect(() => {
+        if (rawData.length === 0) {
+            setIsLoading(true);
+            fetch(`${basePath ? `${basePath}/` : ''}/posts.json`)
+                .then(response => response.json())
+                .then(data => {
+                    setData(data);
+                    // Save to localStorage for persistence
+                    localStorage.setItem('blogPosts', JSON.stringify(data));
+                    setIsLoading(false);
+                })
+                .catch(error => {
+                    console.error("Failed to fetch posts:", error);
+                    setIsLoading(false);
+                });
+        }
+    }, []);
 
     const { page, category } = useParams();
     const navigate = useNavigate();
     const location = useLocation();
 
     const currentPage = parseInt(page, 10) || 1;
-    const [currentRecords, setCurrentRecords] = useState(rawData); // Миттєве завантаження даних
+    const [currentRecords, setCurrentRecords] = useState([]);
     const [totalPages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(false);
     const recordsPerPage = 9;
 
     const { openModal } = useModal();
@@ -40,25 +66,38 @@ const Blog = () => {
 
         if (filteredData.length === 0) return [];
 
+        const shuffleArray = (array) => {
+            const shuffled = [...array];
+            for (let i = shuffled.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
+            }
+            return shuffled;
+        };
+
+        const shuffledData = shuffleArray(filteredData);
+
         const totalRecordsNeeded = 100 * recordsPerPage;
 
-        let extendedData = [...filteredData];
+        let extendedData = [...shuffledData];
         while (extendedData.length < totalRecordsNeeded) {
             const randomIndex = Math.floor(Math.random() * filteredData.length);
             extendedData.push(filteredData[randomIndex]);
         }
 
-        return extendedData;
-    }, [category, recordsPerPage]);
+        return shuffleArray(extendedData); // Ensure final result is also shuffled
+    }, [category, recordsPerPage, rawData]);
 
     useEffect(() => {
-        const indexOfLastRecord = currentPage * recordsPerPage;
-        const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
-        const newRecords = processedData.slice(indexOfFirstRecord, indexOfLastRecord);
+        if (rawData.length > 0) {
+            const indexOfLastRecord = currentPage * recordsPerPage;
+            const indexOfFirstRecord = indexOfLastRecord - recordsPerPage;
+            const newRecords = processedData.slice(indexOfFirstRecord, indexOfLastRecord);
 
-        setCurrentRecords(newRecords);
-        setTotalPages(Math.ceil(processedData.length / recordsPerPage));
-    }, [currentPage, processedData]);
+            setCurrentRecords(newRecords);
+            setTotalPages(Math.ceil(processedData.length / recordsPerPage));
+        }
+    }, [currentPage, processedData, rawData]);
 
     const handlePageChange = useCallback((pageNumber) => {
         if (category) {

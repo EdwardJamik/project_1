@@ -8,7 +8,7 @@ import EmailAutofill from "./AutoFill.jsx";
 import {useLocation} from "react-router-dom";
 
 const closeIcon = [
-    <svg viewBox="0 0 24 24" width='20px' height='20px' fill="none" xmlns="http://www.w3.org/2000/svg">
+    <svg key={'closeIcon'} viewBox="0 0 24 24" width='20px' height='20px' fill="none" xmlns="http://www.w3.org/2000/svg">
         <path id="Vector" d="M18 18L12 12M12 12L6 6M12 12L18 6M12 12L6 18" stroke="#000000" strokeWidth="2"
               strokeLinecap="round" strokeLinejoin="round"></path>
     </svg>
@@ -159,7 +159,9 @@ const Modal = () => {
     }
 
     const handleEmailChange = (newEmail) => {
-        setUserData({...userData,mail:newEmail})
+
+        const sanitizedValue = newEmail.replace(/[§$%()=?!]/g, '_');
+        setUserData({...userData,mail:sanitizedValue})
     };
 
     const securePassword = (password) => {
@@ -172,7 +174,7 @@ const Modal = () => {
         try {
         setLoadButton(true)
 
-        const data = {
+        let data = {
             json: 1,
             gender: 1,
             gender_search: 2,
@@ -180,32 +182,29 @@ const Modal = () => {
             monat: userData?.monat,
             jahr: userData?.jahr,
             nick: userData?.nick,
-            pass: securePassword(userData?.pass),
-            mail: userData?.mail,
+            pass: userData?.pass,
+            mail: userData?.mail?.toLowerCase(),
             land: userData?.land,
             clientIP: userData?.clientIP,
             plz: userData?.plz,
-            subid: 1,
+            subid: '1',
             campaign: 10,
             policy: 1,
-            "parameter[]": [],
-            ...Object.fromEntries(
+            "parameter[]": [
                 Array.from(searchParams.entries())
                     .filter(([key]) => key !== 'tag' && key !== 'monat' && key !== 'jahr' && key !== 'nick' && key !== 'clientIP' && key !== 'pass')
-            )
+            ],
         };
 
-            console.log(data)
-
-        const paramsString = `${data.gender}${data.gender_search}${data.tag}${data.monat}${data.jahr}${data.nick}${data.pass}${data.mail}${data.land}${data.plz}${data.subid}${data.campaign}${data["parameter[]"].join('')}`;
-        const hash = CryptoJS.MD5(paramsString + api_key).toString();
+            const paramsString = `${data.gender}${data.gender_search}${data.tag}${data.monat}${data.jahr}${data.nick}${data?.pass}${data.mail}${data.land}${data.plz}${data.subid}${data.campaign}${data["parameter[]"].join('')}`;
+            const hash = CryptoJS.MD5(paramsString+api_key).toString();
 
         data.hash = hash;
 
         const formBody = Object.keys(data)
             .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
             .join('&');
-            console.log('formBody: ',formBody)
+
             const response = await fetch(url, {
                 method: 'POST',
                 headers: {
@@ -213,6 +212,8 @@ const Modal = () => {
                 },
                 body: formBody
             });
+
+            console.log(response)
 
             const result = await response.json();
 
@@ -227,14 +228,14 @@ const Modal = () => {
                         setLoadButton(false)
                         break;
                     case "mail":
-                        setError("Diese Mail Adresse ist schon vergeben");
+                        setError(result.errortext);
                         setErrorType(result.error)
                         setLoadButton(false)
                         break;
                     case "nick":
                         setError(result.errortext);
                         setErrorType(result.error)
-                        console.log('Nickname error');
+                        // console.log('Nickname error');
                         setLoadButton(false)
                         break;
                     default:
@@ -289,9 +290,18 @@ const Modal = () => {
                             <p>{t('modal_p_1_step_2')}</p>
 
                             <div className="date">
-                                <input type="number" value={userData.tag} onChange={(e)=>{setUserData({...userData, tag: e.target.value})}} step="1" min="1" max="31" placeholder={t('input_placeholder_day')}/>
-                                <input type="number" value={userData.monat} onChange={(e)=>{setUserData({...userData, monat: e.target.value})}} placeholder={t('input_placeholder_month')}/>
-                                <input type="number" value={userData.jahr} onChange={(e)=>{setUserData({...userData, jahr: e.target.value})}} placeholder={t('input_placeholder_year')}/>
+                                <input type="number" value={userData.tag || ""} onChange={(e)=>{
+                                    const sanitizedValue = e.target.value.replace(/[§$%()=?!@]/g, '_').replace(/\s/g, '');
+                                    setUserData({...userData, tag: sanitizedValue})
+                                }} step="1" min="1" max="31" placeholder={t('input_placeholder_day')}/>
+                                <input type="number" value={userData.monat || ""} onChange={(e)=>{
+                                    const sanitizedValue = e.target.value.replace(/[§$%()=?!@]/g, '_').replace(/\s/g, '');
+                                    setUserData({...userData, monat: sanitizedValue})
+                                }} placeholder={t('input_placeholder_month')}/>
+                                <input type="number" value={userData.jahr || ""} onChange={(e)=>{
+                                    const sanitizedValue = e.target.value.replace(/[§$%()=?!@]/g, '_').replace(/\s/g, '');
+                                    setUserData({...userData, jahr: sanitizedValue})}
+                                } placeholder={t('input_placeholder_year')}/>
                             </div>
 
                             <button onClick={nextStep}>{t('modal_button_step_2')}</button>
@@ -354,14 +364,18 @@ const Modal = () => {
                                         </select>
                                         <input
                                             style={isError === true|| isErrorType === 'plz' ? {borderColor: '#ef4444', borderWidth: '2px'} : {}}
-                                            type="text" placeholder={t('input_placeholder_post_code')} value={userData?.plz}
+                                            type="text" placeholder={t('input_placeholder_post_code')} value={userData?.plz || ""}
                                             onChange={(e) => {
+                                                const sanitizedValue = e.target.value.replace(/[§$%()=?!@]/g, '_').replace(/\s/g, '');
+
                                                 if(isErrorType === 'plz') {
                                                     setError(null)
                                                     setErrorType(null)
                                                 }
-                                                setUserData({...userData, plz: e.target.value})
+
+                                                setUserData({...userData, plz: sanitizedValue})
                                         }}/>
+
                                     </div>
 
                                     <button onClick={nextStep}>{t('modal_button_step_find')}</button>
@@ -382,40 +396,78 @@ const Modal = () => {
                             <h4>{t('modal_title_step_4')}</h4>
                             <button className='close_button' onClick={closeModal}>{closeIcon}</button>
                         </div>
+                        <form
+                            onSubmit={(e) => {
+                                e.preventDefault(); // Запобігає перезавантаженню сторінки
+                                nextStep() // Викликає функцію nextStep
+                            }}
+                        >
+                            <div className="modal_content step_4">
 
-                        <div className="modal_content step_4">
+                                <input
+                                    style={!userData.nick && isError || isErrorType === 'nick' ? {
+                                        borderColor: '#ef4444',
+                                        borderWidth: '2px'
+                                    } : {}}
+                                    value={userData.nick || ""}
+                                    onChange={(e) => {
+                                        const sanitizedValue = e.target.value.replace(/[§$%()=?!@]/g, '_').replace(/\s/g, '');
 
-                            <input style={!userData.nick && isError || isErrorType === 'nick' ? {borderColor: '#ef4444', borderWidth: '2px'} : {}} value={userData.nick}
-                                   onChange={(e)=>{
-                                       if(isErrorType === 'nick') {
-                                           setError(null)
-                                           setErrorType(null)
-                                       }
-                                       setUserData({...userData, nick: e.target.value})}} type="text" placeholder={t('input_placeholder_nick')
-                            }/>
-                            <input style={!userData.pass && isError ? {borderColor: '#ef4444', borderWidth: '2px'} : {}} value={userData.pass}
-                                   onChange={(e)=>{
-                                       setUserData({...userData, pass: e.target.value})}} type="password" placeholder={t('input_placeholder_password')
-                            }/>
+                                        if (isErrorType === 'nick') {
+                                            setError(null);
+                                            setErrorType(null);
+                                        }
+                                        setUserData({...userData, nick: sanitizedValue});
+                                    }}
+                                    type="text"
+                                    placeholder={t('input_placeholder_nick')}
+                                    autoComplete="username"
+                                />
 
-                            <p>{t('modal_p_1_step_4')}</p>
+                                {/*<input style={!userData.pass && isError ? {*/}
+                                {/*    borderColor: '#ef4444',*/}
+                                {/*    borderWidth: '2px'*/}
+                                {/*} : {}} value={userData.pass}*/}
+                                {/*       onChange={(e) => {*/}
+                                {/*           setUserData({...userData, pass: e.target.value})*/}
+                                {/*       }} type="password" placeholder={t('input_placeholder_password')*/}
+                                {/*}/>*/}
+                                <input
+                                    style={!userData.pass && isError ? {
+                                        borderColor: '#ef4444',
+                                        borderWidth: '2px'
+                                    } : {}}
+                                    value={userData.pass || ""}
+                                    onChange={(e) => {
+                                        const sanitizedValue = e.target.value.replace(/[§$%()=?!@]/g, '_').replace(/\s/g, '');
 
-                            <EmailAutofill
-                                value={userData?.mail}
-                                onChange={handleEmailChange}
-                                // domains={["gmail.com", "hotmail.com", "customdomain.com"]}
-                            />
+                                        setUserData({...userData, pass: sanitizedValue})
+                                    }}
+                                    type="password"
+                                    placeholder={t('input_placeholder_password')}
+                                    autoComplete="current-password"
+                                />
 
-                            <button className={isLoadButton ? 'load' : ''} onClick={nextStep}>
 
-                                {t('modal_button_step_4')}</button>
+                                <p>{t('modal_p_1_step_4')}</p>
 
-                            {isError !== null &&
-                                <div className="warning">{isError}</div>
-                            }
+                                <EmailAutofill
+                                    value={userData?.mail}
+                                    onChange={handleEmailChange}
+                                    // domains={["gmail.com", "hotmail.com", "customdomain.com"]}
+                                />
 
-                            <span className="step">{isStepInfo}</span>
-                        </div>
+                                <button className={isLoadButton ? 'load' : ''} type="submit">
+
+                                    {t('modal_button_step_4')}</button>
+
+                                {isError !== null &&
+                                    <div className="warning">{isError}</div>
+                                }
+
+                                <span className="step">{isStepInfo}</span>
+                            </div>
+                        </form>
                     </>
                 }
             </div>

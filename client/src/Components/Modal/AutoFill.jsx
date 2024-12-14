@@ -1,10 +1,27 @@
-import React, { useState } from "react";
+import React, {useEffect, useState} from "react";
 import { useTranslation } from "react-i18next";
 
 const EmailAutofill = ({value, onChange, domains = ["gmail.com", "yahoo.com", "hotmail.com", "outlook.com", "ukr.net", "i.ua", "icloud.com", "example.com"]}) => {
     const [suggestions, setSuggestions] = useState([]);
     const [highlightedIndex, setHighlightedIndex] = useState(-1);
     const { t } = useTranslation();
+    const { i18n } = useTranslation();
+    const currentLanguage = i18n.language;
+    const [data, setData] = useState(null);
+    const basePath = window.location.pathname.split('/').slice(0, -1).join('/') || '/';
+
+    useEffect(() => {
+        fetch(`${basePath ? `${basePath}/` : ''}/autoFill.json`)
+            .then(response => response.json())
+            .then(data => {
+                if(currentLanguage && data[0][currentLanguage]){
+                    setData(data[0][currentLanguage])
+                } else {
+                    setData(data[0]['de'])
+                }
+
+            });
+    }, []);
 
     const calculateSimilarity = (domain, input) => {
         let commonChars = 0;
@@ -20,12 +37,12 @@ const EmailAutofill = ({value, onChange, domains = ["gmail.com", "yahoo.com", "h
 
     const handleChange = (e) => {
         const inputValue = e.target.value;
-        onChange(inputValue);
+        onChange(inputValue.replace(/\s/g, ''));
         setHighlightedIndex(-1);
 
         if (inputValue.includes("@")) {
             const [localPart, domainPart] = inputValue.split("@");
-            const filteredDomains = domains
+            const filteredDomains = data
                 .filter((domain) => domain.includes(domainPart))
                 .sort((a, b) => calculateSimilarity(b, domainPart) - calculateSimilarity(a, domainPart))
                 .slice(0, 5)
@@ -38,8 +55,8 @@ const EmailAutofill = ({value, onChange, domains = ["gmail.com", "yahoo.com", "h
     };
 
     const handleFocus = () => {
-        if (!value.includes("@")) {
-            const initialSuggestions = domains.slice(0, 5).map((domain) => `${value}@${domain}`);
+        if (value && !value.includes("@")) {
+            const initialSuggestions = data.slice(0, 5).map((domain) => `${value}@${domain}`);
             setSuggestions(initialSuggestions);
         }
     };
@@ -76,7 +93,7 @@ const EmailAutofill = ({value, onChange, domains = ["gmail.com", "yahoo.com", "h
         <div style={{ position: "relative", width: "100%" }}>
             <input
                 type="text"
-                value={value}
+                value={value || ""}
                 onChange={handleChange}
                 onFocus={handleFocus}
                 onKeyDown={handleKeyDown}

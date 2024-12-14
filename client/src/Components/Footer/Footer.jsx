@@ -5,7 +5,6 @@ import footer_img_1 from '../../Assets/footer_img_1.png'
 import footer_img_2 from '../../Assets/footer_img_2.png'
 import footer_img_3 from '../../Assets/footer_img_3.png'
 
-// import footer_link from '../../../public/footer_link.json'
 import {useTranslation} from "react-i18next";
 const Footer = () => {
     const {i18n} = useTranslation();
@@ -13,9 +12,10 @@ const Footer = () => {
 
     const [isMobile, setIsMobile] = useState(false);
     const [footer_link, set_footer_link] = useState(null);
+    const basePath = window.location.pathname.split('/').slice(0, -1).join('/') || '/';
 
     useEffect(() => {
-        fetch('/footer_link.json')
+        fetch(`${basePath ? `${basePath}/` : ''}footer_link.json`)
             .then(response => response.json())
             .then(data => set_footer_link(data));
     }, []);

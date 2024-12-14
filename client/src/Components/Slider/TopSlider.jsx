@@ -13,7 +13,6 @@ import 'swiper/css/autoplay';
 import './slider.scss';
 
 import Tag from "../Tag/Tag.jsx";
-import data from '../../slide_list.json';
 import { useTranslation } from "react-i18next";
 import { useModal } from "../Modal/ModalContext.jsx";
 import { Navigation, Autoplay } from 'swiper/modules';
@@ -36,6 +35,15 @@ export default function TopSlider() {
     const { t, i18n } = useTranslation();
     const currentLanguage = i18n.language;
 
+    const [data, setData] = useState(null);
+    const basePath = window.location.pathname.split('/').slice(0, -1).join('/') || '/';
+
+    useEffect(() => {
+        fetch(`${basePath ? `${basePath}/` : ''}/slide_list.json`)
+            .then(response => response.json())
+            .then(data => setData(data));
+    }, []);
+
     const { openModal } = useModal();
     const handleOpen = useCallback(() => {
         openModal();
@@ -51,9 +59,10 @@ export default function TopSlider() {
     });
 
     const getRandomItems = useCallback((sourceData, count) => {
-        return [...sourceData]
-            .sort(() => 0.5 - Math.random())
-            .slice(0, count);
+        if(sourceData)
+            return [...sourceData]
+                .sort(() => 0.5 - Math.random())
+                .slice(0, count);
     }, []);
 
     useEffect(() => {
@@ -72,20 +81,21 @@ export default function TopSlider() {
                         : null
                 }));
 
-                for (let i = 0; i < initialData.length; i++) {
-                    await new Promise(resolve => setTimeout(resolve, 0));
-                    setState(prev => ({
-                        ...prev,
-                        randomItems: [...prev.randomItems, initialData[i]]
-                    }));
-                }
+                if(initialData)
+                    for (let i = 0; i < initialData?.length; i++) {
+                        await new Promise(resolve => setTimeout(resolve, 0));
+                        setState(prev => ({
+                            ...prev,
+                            randomItems: [...prev.randomItems, initialData[i]]
+                        }));
+                    }
             } catch (error) {
                 console.error('Data fetching error:', error);
             }
         };
 
         fetchData();
-    }, [getRandomItems]);
+    }, [getRandomItems,data]);
 
     const fetchLocation = async () => {
         try {
@@ -134,7 +144,7 @@ export default function TopSlider() {
             <h2>{t('title')}</h2>
             <Swiper {...swiperSettings} className="mySwiper">
                 <div className="grid">
-                    {state.randomItems.map((record, index) => {
+                    {state.randomItems ? state.randomItems.map((record, index) => {
                         const distance = Math.floor(Math.random() * (45 - 4 + 1)) + 4;
 
                         return (
@@ -162,7 +172,7 @@ export default function TopSlider() {
                                 </div>
                             </SwiperSlide>
                         );
-                    })}
+                    }) : <></>}
                 </div>
 
                 <button className="swiper-button-next">
