@@ -172,38 +172,51 @@ const Modal = () => {
 
     const sendRequest = async () => {
         try {
-        setLoadButton(true)
+            setLoadButton(true)
 
-        let data = {
-            json: 1,
-            gender: 1,
-            gender_search: 2,
-            tag: userData?.tag,
-            monat: userData?.monat,
-            jahr: userData?.jahr,
-            nick: userData?.nick,
-            pass: userData?.pass,
-            mail: userData?.mail?.toLowerCase(),
-            land: userData?.land,
-            clientIP: userData?.clientIP,
-            plz: userData?.plz,
-            subid: '1',
-            campaign: 10,
-            policy: 1,
-            "parameter[]": [
-                Array.from(searchParams.entries())
-                    .filter(([key]) => key !== 'tag' && key !== 'monat' && key !== 'jahr' && key !== 'nick' && key !== 'clientIP' && key !== 'pass')
-            ],
-        };
+            let parameters = Array.from(searchParams.entries())
+                .filter(([key]) => !['tag', 'monat', 'jahr', 'nick', 'clientIP', 'pass'].includes(key))
+                .map(([key, value]) => {
+                    if (key === 'parameter[]') {
+                        const [subkey, subvalue] = value.split('|');
+                        return { key: subkey, value: subvalue }; // Розбиваємо на підключі та значення
+                    }
+                    return { key, value };
+                });
+
+            const parsedParams = parameters.map(param => `${param.key}|${param.value}`);
+
+            let data = {
+                json: 1,
+                gender: 1,
+                gender_search: 2,
+                tag: Number(userData?.tag) ? Number(userData?.tag) : 'undefined',
+                monat: userData?.monat ? Number(userData?.monat) : 'undefined',
+                jahr: Number(userData?.jahr) ? Number(userData?.jahr) : 'undefined',
+                nick: userData?.nick ? userData?.nick : 'undefined',
+                pass: userData?.pass ? userData?.pass : 'undefined',
+                mail: userData?.mail?.toLowerCase() ? userData?.mail?.toLowerCase() : 'undefined',
+                land: Number(userData?.land) ? Number(userData?.land) : 'undefined',
+                clientIP: userData?.clientIP ? userData?.clientIP : 'undefined',
+                plz: userData?.plz ? userData?.plz : 'undefined',
+                subid: '1',
+                campaign: 10,
+                policy: 1,
+                "parameter[]": parsedParams && parsedParams?.length ? parsedParams : [],
+                ...Object.fromEntries(
+                    Array.from(searchParams.entries())
+                        .filter(([key]) => key !== 'tag' && key !== 'monat' && key !== 'jahr' && key !== 'nick' && key !== 'clientIP' && key !== 'pass')
+                )
+            };
 
             const paramsString = `${data.gender}${data.gender_search}${data.tag}${data.monat}${data.jahr}${data.nick}${data?.pass}${data.mail}${data.land}${data.plz}${data.subid}${data.campaign}${data["parameter[]"].join('')}`;
-            const hash = CryptoJS.MD5(paramsString+api_key).toString();
+            const hash = CryptoJS.MD5(paramsString + api_key).toString();
 
-        data.hash = hash;
+            data.hash = hash;
 
-        const formBody = Object.keys(data)
-            .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
-            .join('&');
+            const formBody = Object.keys(data)
+                .map(key => encodeURIComponent(key) + '=' + encodeURIComponent(data[key]))
+                .join('&');
 
             const response = await fetch(url, {
                 method: 'POST',
@@ -213,6 +226,7 @@ const Modal = () => {
                 body: formBody
             });
 
+            console.log(data)
             console.log(response)
 
             const result = await response.json();
