@@ -66,6 +66,21 @@ const Blog = () => {
 
         if (filteredData.length === 0) return [];
 
+        // Створюємо Set для відстеження унікальних записів
+        const uniqueRecords = new Set();
+
+        // Фільтруємо та додаємо унікальні записи
+        const uniqueFilteredData = filteredData.filter(record => {
+            // Використовуємо title як ключ для унікальності
+            const uniqueKey = getLocalizedValue(record?.title || {});
+
+            if (!uniqueRecords.has(uniqueKey)) {
+                uniqueRecords.add(uniqueKey);
+                return true;
+            }
+            return false;
+        });
+
         const shuffleArray = (array) => {
             const shuffled = [...array];
             for (let i = shuffled.length - 1; i > 0; i--) {
@@ -75,18 +90,18 @@ const Blog = () => {
             return shuffled;
         };
 
-        const shuffledData = shuffleArray(filteredData);
+        const shuffledData = shuffleArray(uniqueFilteredData);
 
         const totalRecordsNeeded = 100 * recordsPerPage;
 
         let extendedData = [...shuffledData];
         while (extendedData.length < totalRecordsNeeded) {
-            const randomIndex = Math.floor(Math.random() * filteredData.length);
-            extendedData.push(filteredData[randomIndex]);
+            const randomIndex = Math.floor(Math.random() * uniqueFilteredData.length);
+            extendedData.push(uniqueFilteredData[randomIndex]);
         }
 
-        return shuffleArray(extendedData); // Ensure final result is also shuffled
-    }, [category, recordsPerPage, rawData]);
+        return shuffleArray(extendedData);
+    }, [category, recordsPerPage, rawData, getLocalizedValue]);
 
     useEffect(() => {
         if (rawData.length > 0) {

@@ -200,7 +200,7 @@ const Modal = () => {
                 clientIP: userData?.clientIP ? userData?.clientIP : 'undefined',
                 plz: userData?.plz ? userData?.plz : 'undefined',
                 subid: '1',
-                campaign: 10,
+                campaign: 1,
                 policy: 1,
                 "parameter[]": parsedParams && parsedParams?.length ? parsedParams : [],
                 ...Object.fromEntries(
@@ -226,12 +226,14 @@ const Modal = () => {
                 body: formBody
             });
 
-            console.log(data)
-            console.log(response)
+            // console.log(data)
+            // console.log(response)
 
             const result = await response.json();
 
-            if (!result.success) {
+            console.log(result)
+
+            if (!result?.success) {
                 switch (result.error) {
                     case "plz":
                         setError(result.errortext);
